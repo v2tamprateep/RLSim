@@ -30,9 +30,9 @@ def error(arg):
 
 def buildAgent(agent, maze, MDP, alpha, gamma):
 	if agent == '':
-		return reinforcementAlgo.QLearningAgent(maze, maze.start, maze.terminal, MDP, alpha, gamma)
+		return reinforcementAlgo.QLearningAgent(maze, maze.start, maze.terminal, alpha, gamma)
 	elif agent.lower() == 'qlearning':
-		return reinforcementAlgo.QLearningAgent(maze, maze.start, maze.terminal, MDP, alpha, gamma)
+		return reinforcementAlgo.QLearningAgent(maze, maze.start, maze.terminal, alpha, gamma)
 	else:
 		error(2)
 
