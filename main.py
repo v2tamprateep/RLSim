@@ -30,9 +30,9 @@ def error(arg):
 
 def buildAgent(agent, maze, MDP, alpha, gamma):
 	if agent == '':
-		return reinforcementAlgo.QLearningAgent(maze, maze.start, maze.terminal, alpha, gamma)
+		return reinforcementAlgo.QLearningAgent(maze, maze.start, maze.terminal, MDP, alpha, gamma)
 	elif agent.lower() == 'qlearning':
-		return reinforcementAlgo.QLearningAgent(maze, maze.start, maze.terminal, alpha, gamma)
+		return reinforcementAlgo.QLearningAgent(maze, maze.start, maze.terminal, MDP, alpha, gamma)
 	else:
 		error(2)
 
@@ -93,6 +93,7 @@ def main(argv):
 
 	# Build Agent
 	agent = buildAgent(agentIn, maze, mdp, alpha, gamma)
+
 	# Run agent through maze for n trials 
 	for i in range(trials):
 		path = game.playMaze(agent, maze)

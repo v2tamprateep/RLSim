@@ -50,11 +50,11 @@ class MDP:
 		"""
 		total = 0.0
 		for act in self.maze.getLegalMoves(position):
-			total += self.MDP[action][act]
+			total += self.MDP[move][act]
 
 		newMDP = {}
 		for act in self.maze.getLegalMoves(position):
-			newMDP[act] = self.MDP[action][act]/total
+			newMDP[act] = self.MDP[move][act]/total
 
 		return newMDP
 

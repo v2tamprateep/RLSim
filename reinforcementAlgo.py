@@ -7,11 +7,13 @@ class RLAgent(object):
 	maze = None
 	position = None
 	terminal = []
+	MDP = None
 
-	def __init__(self, maze, start, terminal):
+	def __init__(self, maze, start, terminal, MDP):
 		self.maze = maze
 		self.position = start
 		self.terminal = terminal
+		self.MDP = MDP
 
 	def getMove(self):
 		pass
@@ -25,8 +27,8 @@ class QLearningAgent(RLAgent):
 	gamma = 0
 	qValues = util.Counter()
 
-	def __init__(self, maze, start, terminal, alpha, gamma):
-		super(QLearningAgent, self).__init__(maze, start, terminal)
+	def __init__(self, maze, start, terminal, MDP, alpha, gamma):
+		super(QLearningAgent, self).__init__(maze, start, terminal, MDP)
 		self.alpha = alpha
 		self.gamma = gamma
 
@@ -57,16 +59,19 @@ class QLearningAgent(RLAgent):
 	def getMove(self, position):
 		moves = self.maze.getLegalMoves(position)
 		lst = []
-
+			
 		for move in moves:
 			lst.append((self.qValues[(position, move)], move))
-
+		
 		best = max(lst)[0]
+		
 		tiedMoves = []
-		for val, move in lst[1:]:
-			if val == best: tiedMoves.append((val, move))
-
-		return random.choice(tiedMoves)[1]
+		for val, move in lst:
+			if val == best: tiedMoves.append(move)
+		
+		mdpMove =self.MDP.getMDPMove(self.position, random.choice(tiedMoves))
+		#return random.choice(tiedMoves)
+		return mdpMove
 
 	def update(self, move):
 		prev = self.position
