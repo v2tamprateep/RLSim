@@ -77,7 +77,6 @@ class QLearningAgent(RLAgent):
 			self.position = self.nextPosition(mdpMove)
 			return mdpMove
 
-		print(position)
 		self.updateQVal(moves[0])
 		self.position = self.nextPosition(moves[0])
 		#return random.choice(tiedMoves)
@@ -107,3 +106,32 @@ class QLearningAgent(RLAgent):
 	def resetPosition(self, start):
 		self.position = start
 
+class SarsaAgent(QLearningAgent):
+	def __init__(self, maze, start, terminal, MDP, alpha, gamma):
+		super(SarsaAgent, self).__init__(maze, start, terminal, MDP, alpha, gamma)
+
+	def getMove(self, position):
+		moves = self.maze.getLegalMoves(position)
+
+		if len(moves) > 1:
+			lst = []
+			for move in moves:
+				lst.append((self.qValues[(position, move)], move))
+		
+			best = max(lst)[0]
+	
+			tiedMoves = []
+			for val, move in lst:
+				if val == best: tiedMoves.append(move)
+			maxQMove = random.choice(tiedMoves)
+
+			mdpMove = self.MDP.getMDPMove(self.position, maxQMove)
+
+			# IN SARSA, update happens when move is known
+			self.updateQVal(mdpMove)
+			self.position = self.nextPosition(mdpMove)
+			return mdpMove
+
+		self.updateQVal(moves[0])
+		self.position = self.nextPosition(moves[0])
+		return moves[0]
