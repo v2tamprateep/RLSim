@@ -6,7 +6,7 @@ import util
 class RLAgent(object):
 	maze = None
 	position = None
-	terminal = []
+	terminal = None
 	MDP = None
 
 	def __init__(self, maze, start, terminal, MDP):
@@ -19,7 +19,8 @@ class RLAgent(object):
 		pass
 
 	def finishedMaze(self):
-		return self.position in self.terminal
+		#return self.position in self.terminal
+		return self.position is 'exit'
 
 # Q-Learning
 class QLearningAgent(RLAgent):
@@ -58,39 +59,49 @@ class QLearningAgent(RLAgent):
 
 	def getMove(self, position):
 		moves = self.maze.getLegalMoves(position)
-		lst = []
-			
-		for move in moves:
-			lst.append((self.qValues[(position, move)], move))
-		
-		best = max(lst)[0]
-		
-		tiedMoves = []
-		for val, move in lst:
-			if val == best: tiedMoves.append(move)
-		
-		mdpMove =self.MDP.getMDPMove(self.position, random.choice(tiedMoves))
-		#return random.choice(tiedMoves)
-		return mdpMove
 
-	def update(self, move):
-		prev = self.position
-		self.position = self.updatePosition(move)
+		if len(moves) > 1:
+			lst = []
+			for move in moves:
+				lst.append((self.qValues[(position, move)], move))
+		
+			best = max(lst)[0]
+	
+			tiedMoves = []
+			for val, move in lst:
+				if val == best: tiedMoves.append(move)
+			maxQMove = random.choice(tiedMoves)
+
+			self.updateQVal(maxQMove)
+			mdpMove = self.MDP.getMDPMove(self.position, maxQMove)
+			self.position = self.nextPosition(mdpMove)
+			return mdpMove
+
+		print(position)
+		self.updateQVal(moves[0])
+		self.position = self.nextPosition(moves[0])
+		#return random.choice(tiedMoves)
+		return moves[0]
+
+	def updateQVal(self, move):
+		#currPos = self.position
+		nextPos = self.nextPosition(move)
 
 		currVal = self.computeValueFromQValues(self.position)
-		preVal = self.computeValueFromQValues(prev)
-		reward = self.maze.getValue(prev, move)
+		nextVal = self.computeValueFromQValues(nextPos)
+		reward = self.maze.getValue(self.position)
 
-		self.qValues[(self.position, move)] = preVal + self.alpha*(reward + self.gamma*currVal - preVal)
+		self.qValues[(self.position, move)] = currVal + self.alpha*(reward + self.gamma*nextVal - currVal)
 		# print("position", self.position, "reward: ", reward, "qVal: ", self.qValues[(self.position, move)])
 
-		self.maze.updateMaze(prev, self.qValues[(self.position, move)])
+		self.maze.updateMaze(self.position, self.qValues[(self.position, move)])
 
-	def updatePosition(self, direction):
-		if direction is "N": return (self.position[0], self.position[1] + 1)
-		if direction is "E": return (self.position[0] + 1, self.position[1])
-		if direction is "W": return (self.position[0] - 1, self.position[1])
-		if direction is "S": return (self.position[0], self.position[1] - 1)
+	def nextPosition(self, direction):
+		if direction is 'exit': return 'exit'
+		if direction is 'N': return (self.position[0], self.position[1] + 1)
+		if direction is 'E': return (self.position[0] + 1, self.position[1])
+		if direction is 'W': return (self.position[0] - 1, self.position[1])
+		if direction is 'S': return (self.position[0], self.position[1] - 1)
 		print("Update failed")
 
 	def resetPosition(self, start):
