@@ -48,13 +48,18 @@ class QLearningAgent(RLAgent):
 		  there are no legal actions, which is the case at the
 		  terminal state, you should return a value of 0.0.
 		"""
-		legalActions = self.maze.getLegalMoves(self.position)
-		if len(legalActions) == 0: return 0.0
+		legalActions = 'None'
+		if state is not 'exit': legalActions = self.maze.getLegalMoves(state)
+			
+		#print("LegalActions:", legalActions)
+		if len(legalActions) == 0: 
+			print("should never be here")
+			return 0.0
 		
 		lst = []
 		for act in legalActions:
 			lst.append(self.getQValue(state, act))
-
+			#print(state, act, self.getQValue(state, act))
 		return max(lst)
 
 	def getMove(self, position):
@@ -86,14 +91,15 @@ class QLearningAgent(RLAgent):
 		#currPos = self.position
 		nextPos = self.nextPosition(move)
 
-		currVal = self.computeValueFromQValues(self.position)
+		currVal = self.qValues[(self.position, move)]
 		nextVal = self.computeValueFromQValues(nextPos)
 		reward = self.maze.getValue(self.position)
 
 		self.qValues[(self.position, move)] = currVal + self.alpha*(reward + self.gamma*nextVal - currVal)
-		# print("position", self.position, "reward: ", reward, "qVal: ", self.qValues[(self.position, move)])
+		#print("position", self.position, "reward: ", reward, "qVal: ", self.qValues[(self.position, move)])
 
-		self.maze.updateMaze(self.position, self.qValues[(self.position, move)])
+		#self.maze.updateMaze(self.position, self.qValues[(self.position, move)])
+		print("update:", self.position, move, self.qValues[self.position, move])
 
 	def nextPosition(self, direction):
 		if direction is 'exit': return 'exit'

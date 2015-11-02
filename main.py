@@ -115,39 +115,3 @@ if __name__ == "__main__":
 
 
 
-
-
-
-
-
-# """ Load Maze """
-# maze = mazeFunctions.Maze(mazeFunctions.parseMaze(sys.argv[1]))
-
-
-# """ Load MDP """
-# """ 
-# 	If sys.argv[4] is Null, agent is deterministic by default
-# """
-# if str(sys.argv[4]) == None: MDP = MDP.MDP(maze, "deterministic")
-# else: MDP = MDP.MDP(maze, str(sys.argv[4]))
-
-
-# """ Initialize RL Agent/Algorithm """
-# Agent = None
-
-# if str(sys.argv[2]) == 'QLearning':
-# 	agent = reinforcementAlgo.QLearningAgent(maze, maze.start, maze.terminal, 0.5, 0.8)
-# else:
-# 	print("Chosen agent: ", sys.argv[2])
-# 	sys.exit()
-
-
-# """ Run agent through maze for n trials """	
-# for i in range(int(sys.argv[3])):
-# 	path = game.playMaze(agent, maze)
-
-
-# print("final path:")
-# print(path)
-
-# sys.exit()
