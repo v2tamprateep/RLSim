@@ -99,8 +99,7 @@ class QLearningAgent(RLAgent):
 		#print("position", self.position, "reward: ", reward, "qVal: ", self.qValues[(self.position, move)])
 
 		#self.maze.updateMaze(self.position, self.qValues[(self.position, move)])
-		print("update:", self.position, move, self.qValues[self.position, move])
-
+		
 	def nextPosition(self, direction):
 		if direction is 'exit': return 'exit'
 		if direction is 'N': return (self.position[0], self.position[1] + 1)
