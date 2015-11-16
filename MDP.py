@@ -59,6 +59,8 @@ class MDP:
 		return newMDP
 
 	def getMDPMove(self, position, move):
+		if move is 'exit': return move
+
 		rand = random.random()
 		newMDP = self.normalize(position, move)
 		total = 0

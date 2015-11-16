@@ -9,12 +9,13 @@ import os.path
 
 def help():
 	print("-h			help")
-	print("-m, --maze	select maze")
-	print("-A, --agent	select agent, default: QLearning")
-	print("-n, --trials	select number of trials, default 1")
+	print("-m --maze	select maze")
+	print("-A --agent	select agent, default: QLearning")
+	print("-n --trials	select number of trials, default 1")
 	print("--MDP		select MDP, default: deterministic\n")
 	print("-a 		alpha, learning rate, default: 0.5")
 	print("-g 		gamma, discount factor, default: 0.8")
+	print("-e		epsilon, default: 0")
 	sys.exit(0)
 
 def error(arg):
@@ -28,13 +29,13 @@ def error(arg):
 		print("I don't even know what you did wrong. RIP.")
 	sys.exit(2)
 
-def buildAgent(agent, maze, MDP, alpha, gamma):
+def buildAgent(agent, maze, MDP, alpha, gamma, epsilon):
 	if agent == '':
-		return reinforcementAlgo.QLearningAgent(maze, maze.start, maze.terminal, MDP, alpha, gamma)
+		return reinforcementAlgo.QLearningAgent(maze, maze.start, maze.terminal, MDP, alpha, gamma, epsilon)
 	elif agent.lower() == 'qlearning':
-		return reinforcementAlgo.QLearningAgent(maze, maze.start, maze.terminal, MDP, alpha, gamma)
+		return reinforcementAlgo.QLearningAgent(maze, maze.start, maze.terminal, MDP, alpha, gamma, epsilon)
 	elif 'sarsa' in agent.lower():
-		return reinforcementAlgo.SarsaAgent(maze, maze.start, maze.terminal, MDP, alpha, gamma)
+		return reinforcementAlgo.SarsaAgent(maze, maze.start, maze.terminal, MDP, alpha, gamma, epsilon)
 	else:
 		error(2)
 
@@ -64,9 +65,10 @@ def main(argv):
 	trials = 1
 	alpha = 0.5
 	gamma = 0.8
+	epsilon = 0
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:", ["maze=", "agent=", "trials=", "MDP="])
+		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:", ["maze=", "agent=", "trials=", "MDP="])
 	except getopt.GetoptError:
 		help()
 
@@ -85,6 +87,8 @@ def main(argv):
 			alpha = float(arg)
 		elif opt in ('-g'):
 			gamma = float(arg)
+		elif opt in ('-e'):
+			epsilon = float(arg)
 
 	# Build Maze
 	if (not os.path.exists("./layouts/" + mazeIn + ".lay")): error(0)
@@ -94,7 +98,7 @@ def main(argv):
 	mdp = buildMDP(maze, mdpIn)
 
 	# Build Agent
-	agent = buildAgent(agentIn, maze, mdp, alpha, gamma)
+	agent = buildAgent(agentIn, maze, mdp, alpha, gamma, epsilon)
 
 	# Run agent through maze for n trials 
 	for i in range(trials):
@@ -102,7 +106,6 @@ def main(argv):
 
 	print("final path:")
 	print(path)
-
 	sys.exit()
 
 
@@ -112,6 +115,4 @@ agent = None
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
-
 
