@@ -1,7 +1,7 @@
 
 # read in maze file and store in dictionary
 def parseMaze(arg):
-   	infile = open("./layouts/" + arg + ".lay", "r")
+   	infile = open("./Layouts/" + arg + ".lay", "r")
 	lst = infile.read().splitlines()
 
 	start = 0

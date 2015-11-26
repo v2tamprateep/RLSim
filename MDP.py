@@ -33,7 +33,6 @@ class MDP:
 	 W:{N:n, E:e, W:w, S:s},
 	 S:{N:n, E:e, W:w, S:s}}
 	"""
-
 	MDP = {}
 	maze = None
 

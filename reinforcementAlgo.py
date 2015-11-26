@@ -8,6 +8,7 @@ class RLAgent(object):
 	position = None
 	terminal = None
 	MDP = None
+	posCounter = util.Counter()
 
 	def __init__(self, maze, start, terminal, MDP):
 		self.maze = maze
@@ -75,19 +76,20 @@ class QLearningAgent(RLAgent):
 				if val == best: tiedMoves.append(move)
 			maxQMove = random.choice(tiedMoves)
 
-			self.updateQVal(maxQMove)
+			self.update(maxQMove)
 			mdpMove = self.MDP.getMDPMove(self.position, maxQMove)
 			self.position = self.nextPosition(mdpMove)
 			return mdpMove
 
-		self.updateQVal(moves[0])
+		self.update(moves[0])
 		mdpMove = self.MDP.getMDPMove(self.position, moves[0])
 		self.position = self.nextPosition(moves[0])
 		return moves[0]
 
-	def updateQVal(self, move):
-		nextPos = self.nextPosition(move)
+	def update(self, move):
+		self.posCounter[self.position] += 1
 
+		nextPos = self.nextPosition(move)
 		currVal = self.qValues[(self.position, move)]
 		nextVal = self.computeValueFromQValues(nextPos)
 		reward = self.maze.getValue(nextPos)

@@ -329,6 +329,10 @@ class Counter(dict):
         """
         return Counter(dict.copy(self))
 
+    def reset(self):
+        for key in self:
+            self[key] = 0
+
     def __mul__(self, y ):
         """
         Multiplying two counters gives the dot product of their vectors where
