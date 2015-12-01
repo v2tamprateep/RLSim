@@ -82,7 +82,7 @@ class QLearningAgent(RLAgent):
 			return mdpMove
 
 		self.update(moves[0])
-		mdpMove = self.MDP.getMDPMove(self.position, moves[0])
+		#mdpMove = self.MDP.getMDPMove(self.position, moves[0])
 		self.position = self.nextPosition(moves[0])
 		return moves[0]
 
@@ -130,10 +130,10 @@ class SarsaAgent(QLearningAgent):
 			mdpMove = self.MDP.getMDPMove(self.position, maxQMove)
 
 			# IN SARSA, update happens when move is known
-			self.updateQVal(mdpMove)
+			self.update(mdpMove)
 			self.position = self.nextPosition(mdpMove)
 			return mdpMove
 
-		self.updateQVal(moves[0])
+		self.update(moves[0])
 		self.position = self.nextPosition(moves[0])
 		return moves[0]

@@ -7,6 +7,31 @@ import game
 import util
 import os.path
 import collections
+import datetime, time
+
+
+def printToFile(output, posDist, agentIn, mazeIn, mdpIn, trials):
+	dataFile = open("./Data/" + output, 'w')
+	dataFile.write(datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S') + "\n")
+	dataFile.write("Agent:" + str(agentIn) + "\t\tMaze: "+ str(mazeIn) + "\t\tTrans. Function: " + str(mdpIn) + "\t\tTrials: " + str(trials) + "\n")
+	keys = posDist.keys()
+	index, perLine = 0, 4
+	for key in keys:
+		dataFile.write(str(key) + ": " + str(posDist[key]) + "\t"),
+		if index%perLine == (perLine - 1): dataFile.write("\n")
+		index += 1
+	dataFile.write("\n")
+	dataFile.close()
+	
+def printToConsole(posDist, agentIn, mazeIn, mdpIn, trials):
+	print(datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S'))
+	print("Agent:" + str(agentIn) + "\t\tMaze: "+ str(mazeIn) + "\t\tTrans. Function: " + str(mdpIn) + "\t\tTrials: " + str(trials) + "\n")
+	keys = posDist.keys()
+	index, perLine = 0, 4
+	for key in keys:
+		print(str(key) + ": {0:.5f}".format(posDist[key])),
+		if index%perLine == (perLine - 1): print("\n")
+		index += 1
 
 def help():
 	print("-h			help")
@@ -60,9 +85,10 @@ def main(argv):
 	alpha = 0.5
 	gamma = 0.8
 	epsilon = 0
+	output = "defaultOut.txt"
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:", ["maze=", "agent=", "trials=", "MDP="])
+		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:", ["maze=", "agent=", "trials=", "MDP=", "output="])
 	except getopt.GetoptError:
 		help()
 
@@ -83,6 +109,8 @@ def main(argv):
 			gamma = float(arg)
 		elif opt in ('-e'):
 			epsilon = float(arg)
+		elif opt in ("--output"):
+			output = arg
 
 	# Build Maze
 	if (not os.path.exists("./Layouts/" + mazeIn + ".lay")): error(0)
@@ -103,23 +131,13 @@ def main(argv):
 	# print output
 	agent.posCounter.normalize()
 	posDist = collections.OrderedDict(sorted(agent.posCounter.items()))
-	print("Agent:" + str(agentIn) + "\t\tMaze: "+ str(mazeIn) + "\t\tTrans. Function: " + str(mdpIn) + "\t\tTrials: " + str(trials))
-	keys = posDist.keys()
-	index, perLine = 0, 5
-	for key in keys:
-		print(str(key) + ": {0:.5f}".format(posDist[key])),
-		if index%perLine == (perLine - 1): print("\n")
-		index += 1
-	print("\n")
 
-	"""
-	# output data
-	dataFile = open("./Data/" + output + ".txt", 'a')
-	keys = agent.posCounter.keys()
-	dataFile.write("Agent:" + agentIn + "\tMaze: "+ maze + "\nTrials: " + trials + "\n")
-	for key in keys:
-		dataFile.write()
-	"""
+	# print to console
+	printToConsole(posDist, agentIn, mazeIn, mdpIn, trials)
+
+	# print to file
+	printToFile(output, posDist, agentIn, mazeIn, mdpIn, trials)
+	
 	sys.exit()
 
 
