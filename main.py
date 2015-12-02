@@ -17,8 +17,9 @@ def printToFile(output, posDist, agentIn, mazeIn, mdpIn, trials):
 	keys = posDist.keys()
 	index, perLine = 0, 4
 	for key in keys:
-		dataFile.write(str(key) + ": " + str(posDist[key]) + "\t"),
+		dataFile.write(str(key) + ": {0:.15f}".format(posDist[key])),
 		if index%perLine == (perLine - 1): dataFile.write("\n")
+		else: dataFile.write("\t")
 		index += 1
 	dataFile.write("\n")
 	dataFile.close()
@@ -29,7 +30,7 @@ def printToConsole(posDist, agentIn, mazeIn, mdpIn, trials):
 	keys = posDist.keys()
 	index, perLine = 0, 4
 	for key in keys:
-		print(str(key) + ": {0:.5f}".format(posDist[key])),
+		print(str(key) + ": {0:.15f}".format(posDist[key])),
 		if index%perLine == (perLine - 1): print("\n")
 		index += 1
 
