@@ -15,6 +15,9 @@ class RLAgent(object):
 		self.position = start
 		self.terminal = terminal
 		self.MDP = MDP
+		for key in maze.maze.keys():
+			if (maze.maze[key] != "%"):
+				self.posCounter[key] = 0
 
 	def getMove(self):
 		pass

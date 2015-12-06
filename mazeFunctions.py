@@ -26,7 +26,7 @@ def parseMaze(arg):
 		x = 0
 		y += 1
 
-	dictionary['exit'] = 0
+#	dictionary['exit'] = 0
 
 	infile.close()
 	return (dictionary, start, terminal)
@@ -56,11 +56,8 @@ class Maze:
 		return moves
 
 	def getValue(self, position):
+		if (position == "exit"): return 0
 		return self.maze[position]
-		#if direction is "N": return self.maze[(position[0], position[1] + 1)]
-		#if direction is "E": return self.maze[(position[0] + 1, position[1])]
-		#if direction is "W": return self.maze[(position[0] - 1, position[1])]
-		#if direction is "S": return self.maze[(position[0], position[1] - 1)]
 
 	def updateMaze(self, position, value):
 		self.maze[position] = value

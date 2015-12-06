@@ -10,23 +10,27 @@ import collections
 import datetime, time
 
 
-def printToFile(output, posDist, agentIn, mazeIn, mdpIn, trials):
-	dataFile = open("./Data/" + output, 'w')
+def printToFile(output, posDist, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon):
+	dataFile = open("./Data/" + mazeIn + "/" + agentIn + "/" + output, 'w')
 	dataFile.write(datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S') + "\n")
 	dataFile.write("Agent:" + str(agentIn) + "\t\tMaze: "+ str(mazeIn) + "\t\tTrans. Function: " + str(mdpIn) + "\t\tTrials: " + str(trials) + "\n")
+	dataFile.write("alpha: " + str(alpha) + "\t\tgamma: " + str(gamma) + "\t\tepsilon: " + str(epsilon) + "\n")
+	dataFile.write("Distribution:\n")
 	keys = posDist.keys()
 	index, perLine = 0, 4
 	for key in keys:
-		dataFile.write(str(key) + ": {0:.15f}".format(posDist[key])),
+		dataFile.write(str(key).replace(" ", "") + ": {0:.15f}".format(posDist[key])),
 		if index%perLine == (perLine - 1): dataFile.write("\n")
 		else: dataFile.write("\t")
 		index += 1
 	dataFile.write("\n")
 	dataFile.close()
 	
-def printToConsole(posDist, agentIn, mazeIn, mdpIn, trials):
+def printToConsole(posDist, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon):
 	print(datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S'))
-	print("Agent:" + str(agentIn) + "\t\tMaze: "+ str(mazeIn) + "\t\tTrans. Function: " + str(mdpIn) + "\t\tTrials: " + str(trials) + "\n")
+	print("Agent:" + str(agentIn) + "\t\tMaze: "+ str(mazeIn) + "\t\tTrans. Function: " + str(mdpIn) + "\t\tTrials: " + str(trials))
+	print("alpha: " + str(alpha) + "\t\tgamma: " + str(gamma) + "\t\tepsilon: " + str(epsilon))
+	print("Distribution:")
 	keys = posDist.keys()
 	index, perLine = 0, 4
 	for key in keys:
@@ -86,10 +90,12 @@ def main(argv):
 	alpha = 0.5
 	gamma = 0.8
 	epsilon = 0
-	output = "defaultOut.txt"
+	output = None
+	consoleOut = True
+	fileOut = True
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:", ["maze=", "agent=", "trials=", "MDP=", "output="])
+		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:", ["maze=", "agent=", "trials=", "MDP=", "output=", "consoleOut-Off", "fileOut-Off"])
 	except getopt.GetoptError:
 		help()
 
@@ -97,11 +103,11 @@ def main(argv):
 		if opt == '-h':
 			help()
 		elif opt == '--MDP':
-			mdpIn = arg
+			mdpIn = arg.lower()
 		elif opt in ('-m', '--maze'):
-			mazeIn = arg
+			mazeIn = arg.lower()
 		elif opt in ('-A', '--agent'):
-			agentIn = arg
+			agentIn = arg.lower()
 		elif opt in ('-n', '--trials'):
 			trials = int(arg)
 		elif opt in ('-a'):
@@ -112,6 +118,13 @@ def main(argv):
 			epsilon = float(arg)
 		elif opt in ("--output"):
 			output = arg
+		elif opt in("--consoleOut-Off"):
+			consoleOut = False
+		elif opt in("--fileOut-Off"):
+			fileOut = False
+ 
+	if (output == None):
+		output = agentIn + '-a' + str(alpha) + '-g' + str(gamma) + '-e' + str(epsilon)
 
 	# Build Maze
 	if (not os.path.exists("./Layouts/" + mazeIn + ".lay")): error(0)
@@ -134,10 +147,12 @@ def main(argv):
 	posDist = collections.OrderedDict(sorted(agent.posCounter.items()))
 
 	# print to console
-	printToConsole(posDist, agentIn, mazeIn, mdpIn, trials)
+	if (consoleOut):
+		printToConsole(posDist, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon)
 
 	# print to file
-	printToFile(output, posDist, agentIn, mazeIn, mdpIn, trials)
+	if (fileOut):
+		printToFile(output, posDist, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon)
 	
 	sys.exit()
 
