@@ -85,7 +85,6 @@ class QLearningAgent(RLAgent):
 			return mdpMove
 
 		self.update(moves[0])
-		#mdpMove = self.MDP.getMDPMove(self.position, moves[0])
 		self.position = self.nextPosition(moves[0])
 		return moves[0]
 

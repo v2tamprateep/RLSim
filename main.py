@@ -5,13 +5,13 @@ import reinforcementAlgo
 import MDP
 import game
 import util
-import os.path
+import os
 import collections
 import datetime, time
 
 
 def printToFile(output, posDist, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon):
-	dataFile = open("./Data/" + mazeIn + "/" + agentIn + "/" + output, 'w')
+	dataFile = open(output, 'w')
 	dataFile.write(datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S') + "\n")
 	dataFile.write("Agent:" + str(agentIn) + "\t\tMaze: "+ str(mazeIn) + "\t\tTrans. Function: " + str(mdpIn) + "\t\tTrials: " + str(trials) + "\n")
 	dataFile.write("alpha: " + str(alpha) + "\t\tgamma: " + str(gamma) + "\t\tepsilon: " + str(epsilon) + "\n")
@@ -39,7 +39,7 @@ def printToConsole(posDist, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilo
 		index += 1
 
 def help():
-	print("-h			help")
+	print("-h		help")
 	print("-m --maze	select maze")
 	print("-A --agent	select agent, default: QLearning")
 	print("-n --trials	select number of trials, default 1")
@@ -87,15 +87,16 @@ def main(argv):
 	mdpIn = 'deterministic'
 	agentIn = ''
 	trials = 1
+	sampleSize = 1
 	alpha = 0.5
 	gamma = 0.8
-	epsilon = 0
+	epsilon = 0.0
 	output = None
 	consoleOut = True
 	fileOut = True
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:", ["maze=", "agent=", "trials=", "MDP=", "output=", "consoleOut-Off", "fileOut-Off"])
+		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:", ["maze=", "agent=", "trials=", "sampleSize=", "MDP=", "output=", "consoleOut-Off", "fileOut-Off"])
 	except getopt.GetoptError:
 		help()
 
@@ -110,6 +111,8 @@ def main(argv):
 			agentIn = arg.lower()
 		elif opt in ('-n', '--trials'):
 			trials = int(arg)
+		elif opt in ('--sampleSize'):
+			sampleSize = int(arg)
 		elif opt in ('-a'):
 			alpha = float(arg)
 		elif opt in ('-g'):
@@ -122,9 +125,12 @@ def main(argv):
 			consoleOut = False
 		elif opt in("--fileOut-Off"):
 			fileOut = False
- 
+
 	if (output == None):
 		output = agentIn + '-a' + str(alpha) + '-g' + str(gamma) + '-e' + str(epsilon)
+	elif (output[-1] == '/'):
+		name = agentIn + '-a' + str(alpha) + '-g' + str(gamma) + '-e' + str(epsilon)
+		output = output + name
 
 	# Build Maze
 	if (not os.path.exists("./Layouts/" + mazeIn + ".lay")): error(0)
@@ -136,12 +142,12 @@ def main(argv):
 	# Build Agent
 	agent = buildAgent(agentIn, maze, mdp, alpha, gamma, epsilon)
 	
-	# Run agent through maze for n trials 
-	for i in range(trials):
-		path = game.playMaze(agent, maze)
+	for sample in range(sampleSize):
+		# Run agent through maze for n trials 
+		for trial in range(trials):
+			path = game.playMaze(agent, maze)
+		agent.qValues.reset()
 
-	#print("final path:")
-	#print(path)
 	# print output
 	agent.posCounter.normalize()
 	posDist = collections.OrderedDict(sorted(agent.posCounter.items()))

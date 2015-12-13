@@ -25,11 +25,9 @@ if (fileA is None or folderB is None or output is None):
 	print("One or more missing arguments")
 	sys.exit(2)
 
-output = open("Data/comparison_results/" + output, "a")
+output = open(output, "a")
 output.write("Compare contents of " + folderB + " against " + fileA + ":\n\n")
 output.flush
-
-fileA = "Data/" + fileA
 
 dic = {}
 for path, dirs, files in os.walk(folderB):
