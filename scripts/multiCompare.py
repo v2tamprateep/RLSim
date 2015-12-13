@@ -34,16 +34,10 @@ fileA = "Data/" + fileA
 dic = {}
 for path, dirs, files in os.walk(folderB):
 	for name in sorted(files):
-		# output.write(name + " ")
-		# output.flush()
-		# p = subprocess.Popen(["python" ,"scripts/compare.py", "--fileA=" + fileA, "--fileB=" + os.path.join(path, name)], stdout=output, stderr=output)
 		out = subprocess.check_output(["python" ,"scripts/compare.py", "--fileA=" + fileA, "--fileB=" + os.path.join(path, name)])
 		dic[name] = out
-		# p.wait()
-		# output.flush()
 
 ordered = sorted(dic.items(), key=operator.itemgetter(1))
-# keys = ordered.keys()
 
 for tup in ordered:
 	output.write(str(tup[0]) + " " + str(tup[1]))
