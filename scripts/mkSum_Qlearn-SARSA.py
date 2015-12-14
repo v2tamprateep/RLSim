@@ -18,8 +18,10 @@ def getParams(path, fileIn):
 	fileIn.close()
 	return params
 
+longSum = False
+
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "", ["file="])
+	opts, args = getopt.getopt(sys.argv[1:], "", ["file=", "long"])
 except getopt.GetoptError:
 	print("Commandline error")
 	sys.exit(2)
@@ -29,6 +31,8 @@ fileIn = None
 for opt, arg in opts:
 	if (opt in ("--file=")):
 		fileIn = arg
+	elif (opt in ("--long")):
+		longSum = True
 
 if (fileIn is None):
 	print("Commandline error")
@@ -40,6 +44,9 @@ pathToData = dataFile.readline().split()[3]
 
 # Counter for summarized data
 summary = Counter()
+summaryAG = Counter()
+summaryEA = Counter()
+summaryGE = Counter()
 count = Counter()
 # skip blank line
 dataFile.readline()
@@ -57,14 +64,27 @@ for line in dataFile:
 	summary[('epsilon', params[2])] += value
 	count[('epsilon', params[2])] += 1
 
-ordered = sorted(summary.keys(), key=operator.itemgetter(0, 1))
+	if (longSum):
+		summaryAG[('alpha', params[0], 'gamma', params[1])] += value
+		count[('alpha', params[0], 'gamma', params[1])] += 1
 
-output = open(fileIn + "_summary", "a")
+		summaryEA[('epsilon', params[2], 'alpha', params[0])] += value
+		count[('epsilon', params[2], 'alpha', params[0])] += 1
+
+		summaryGE[('gamma', params[1], 'epsilon', params[2])] += value
+		count[('gamma', params[1], 'epsilon', params[2])] += 1
+
+ordered = sorted(summary.keys(), key=operator.itemgetter(0, 1))
+if (longSum):
+	orderedAG = sorted(summaryAG.items(), key=operator.itemgetter(1))
+	orderedEA = sorted(summaryEA.items(), key=operator.itemgetter(1))
+	orderedGE = sorted(summaryGE.items(), key=operator.itemgetter(1))
+
+output = open(fileIn + "_Summary", "w")
 output.write("Summary of " + filename)
 output.flush
 
 current = None
-# index, perLine = 0, 5
 for param, value in ordered:
 	if (param != current):
 		current = param
@@ -73,5 +93,28 @@ for param, value in ordered:
 	output.write(current[0] + str(value) + ": " + str(summary[(param, value)]/count[(param, value)]) + "\n")
 
 output.flush()
+
+if (longSum):
+	output.write("\n--alpha, gamma--\n")
+	for key, value in orderedAG:
+		param0, value0, param1, value1 = key
+		output.write(param0[0] + str(value0) + "-" + param1[0] + str(value1) + ": " + str(value/count[key]) + "\n")
+
+	output.flush()
+
+	output.write("\n--epsilon, alpha--\n")
+	for key, value in orderedEA:
+		param0, value0, param1, value1 = key
+		output.write(param0[0] + str(value0) + "-" + param1[0] + str(value1) + ": " + str(value/count[key]) + "\n")
+
+	output.flush()
+
+	output.write("\n--gamma, epsilon--\n")
+	for key, value in orderedGE:
+		param0, value0, param1, value1 = key
+		output.write(param0[0] + str(value0) + "-" + param1[0] + str(value1) + ": " + str(value/count[key]) + "\n")
+
+	output.flush()
+
 output.close()
 print("Script Complete")
