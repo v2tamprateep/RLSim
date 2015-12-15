@@ -1,5 +1,4 @@
 
-# import sys
 import random
 import util
 
@@ -37,13 +36,13 @@ class QLearningAgent(RLAgent):
 		self.gamma = gamma
 		self.epsilon = epsilon
 
-	def getQValue(self, state, action):
+#	def getQValue(self, state, action):
 		"""
           Returns Q(state,action)
           Should return 0.0 if we have never seen a state
           or the Q node value otherwise
 		"""
-		return self.qValues[(state, action)]
+#		return self.qValues[(state, action)]
         
 	def computeValueFromQValues(self, state):
 		"""
@@ -61,7 +60,7 @@ class QLearningAgent(RLAgent):
 		
 		lst = []
 		for act in legalActions:
-			lst.append(self.getQValue(state, act))
+			lst.append(self.qValues[(state, act)])
 		return max(lst)
 
 	def getMove(self):
@@ -91,13 +90,19 @@ class QLearningAgent(RLAgent):
 	def update(self, move):
 		self.posCounter[self.position] += 1
 
+		action_cost = 0.1
+		if (move == "S"): action_cost *= 10
+
 		nextPos = self.nextPosition(move)
 		currVal = self.qValues[(self.position, move)]
 		nextVal = self.computeValueFromQValues(nextPos)
 		reward = self.maze.getValue(nextPos)
 
+		# if no reward
+		if (reward == 0):
+			reward -= action_cost
 		self.qValues[(self.position, move)] = currVal + self.alpha*(reward + self.gamma*nextVal - currVal)
-		
+	
 	def nextPosition(self, direction):
 		if direction is 'exit': return 'exit'
 		if direction is 'N': return (self.position[0], self.position[1] + 1)

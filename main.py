@@ -96,12 +96,13 @@ def main(argv):
 	fileOut = True
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:", ["maze=", "agent=", "trials=", "sampleSize=", "MDP=", "output=", "consoleOut-Off", "fileOut-Off"])
+		opts, args = getopt.getopt(sys.argv[1:], "m:A:n:a:g:e:", ["--help", "maze=", "agent=", "trials=", \
+			"sampleSize=", "mdp=", "output=", "consoleOut-Off", "fileOut-Off"])
 	except getopt.GetoptError:
 		help()
 
 	for opt, arg in opts:
-		if opt == '-h':
+		if opt in ('-h', '--help'):
 			help()
 		elif opt == '--MDP':
 			mdpIn = arg.lower()
