@@ -62,16 +62,4 @@ Mazes use 4 types of symbols. Walls are represented with the percent character (
 areas use spaces (' '), starting position uses an 'S', and terminal positions use any non-
 zero, single digit value, generally 1.
 
-In the following maze, the agent starts at (2, 1) and finishes at (3, 7) and contains two forks.
-
-%%%%%%%%%
-%%%1% %%%
-%%% % %%%
-%%%   %%%
-%% % %%%%
-%% % %%%%
-%%   %%%%
-%%%S%%%%%
-%%%%%%%%%
-
 Markov Decision Processes/Transition Function:
