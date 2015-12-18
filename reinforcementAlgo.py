@@ -1,6 +1,5 @@
 
-			irint()
-mport random
+import random
 import util
 
 action_cost = {'N': 1, 'E': 1, 'W': 1, 'S': 10}
