@@ -26,8 +26,6 @@ def parseMaze(arg):
 		x = 0
 		y += 1
 
-#	dictionary['exit'] = 0
-
 	infile.close()
 	return (dictionary, start, terminal)
 
@@ -41,8 +39,8 @@ class Maze:
 	# returns list of possible moves
 	# list in order: N, E, W, S
 	def getLegalMoves(self, position):
-		if position in self.terminal:
-			return ['exit']
+		#if position in self.terminal:
+		#	return ['exit']
 
 		moves = []
 		x = position[0]

@@ -1,6 +1,9 @@
 
-import random
+			irint()
+mport random
 import util
+
+action_cost = {'N': 1, 'E': 1, 'W': 1, 'S': 10}
 
 class RLAgent(object):
 	maze = None
@@ -22,7 +25,7 @@ class RLAgent(object):
 		pass
 
 	def finishedMaze(self):
-		return self.position is 'exit'
+		return self.position in self.terminal
 
 # Q-Learning
 class QLearningAgent(RLAgent):
@@ -36,14 +39,6 @@ class QLearningAgent(RLAgent):
 		self.gamma = gamma
 		self.epsilon = epsilon
 
-#	def getQValue(self, state, action):
-		"""
-          Returns Q(state,action)
-          Should return 0.0 if we have never seen a state
-          or the Q node value otherwise
-		"""
-#		return self.qValues[(state, action)]
-        
 	def computeValueFromQValues(self, state):
 		"""
 		  Returns max_action Q(state,action)
@@ -88,11 +83,6 @@ class QLearningAgent(RLAgent):
 		return moves[0]
 
 	def update(self, move):
-		self.posCounter[self.position] += 1
-
-		action_cost = 0.1
-		if (move == "S"): action_cost *= 10
-
 		nextPos = self.nextPosition(move)
 		currVal = self.qValues[(self.position, move)]
 		nextVal = self.computeValueFromQValues(nextPos)
@@ -100,11 +90,11 @@ class QLearningAgent(RLAgent):
 
 		# if no reward
 		if (reward == 0):
-			reward -= action_cost
+			reward -= action_cost[move]
 		self.qValues[(self.position, move)] = currVal + self.alpha*(reward + self.gamma*nextVal - currVal)
 	
 	def nextPosition(self, direction):
-		if direction is 'exit': return 'exit'
+		#if direction is 'exit': return 'exit'
 		if direction is 'N': return (self.position[0], self.position[1] + 1)
 		if direction is 'E': return (self.position[0] + 1, self.position[1])
 		if direction is 'W': return (self.position[0] - 1, self.position[1])
