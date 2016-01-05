@@ -1,7 +1,9 @@
 
+import myUtil as util
+
 # read in maze file and store in dictionary
-def parseMaze(arg):
-   	infile = open("./Layouts/" + arg + ".lay", "r")
+def initMaze(arg):
+	infile = open("./Layouts/" + arg + ".lay", "r")
 	lst = infile.read().splitlines()
 
 	start = 0
@@ -14,44 +16,51 @@ def parseMaze(arg):
 			if char.isdigit():
 				dictionary[(x, y)] = int(char)*10
 			elif char != '%':
-			#if char != '%':
 				dictionary[(x, y)] = 0
 			else:
 				dictionary[(x, y)] = char
 			if char.isdigit(): terminal.append((x, y))
-			#if char.isdigit(): terminal[(x, y)] = int(char)
-			if str(char).lower() == 's': 
-				start = (x, y)
+
+			dirSymbols = ['^', '>', 'v' '<']
+			if str(char) in dirSymbols:
+				directions = ['N', 'E', 'S', 'W']
+				start = ((x, y), directions[dirSymbols.index(str(char))])
 			x += 1
 		x = 0
 		y += 1
 
+#	dictionary['exit'] = 0
 	infile.close()
 	return (dictionary, start, terminal)
 
 class Maze:
 	"""arg in order: maze, start, termianl"""
 	def __init__(self, arg):
-		self.maze = arg[0]
-		self.start = arg[1]
-		self.terminal = arg[2]
-		
-	# returns list of possible moves
-	# list in order: N, E, W, S
-	def getLegalMoves(self, position):
-		#if position in self.terminal:
-		#	return ['exit']
+		self.maze, self.start, self.terminal = initMaze(arg)
+		# self.maze = arg[0]
+		# self.start = arg[1]
+		# self.terminal = arg[2]
 
-		moves = []
-		x = position[0]
-		y = position[1]
+	def getLegalStates(self):
+		return [state for state in self.maze.keys() if self.maze[state] != '%']
 		
-		if self.maze[(x, y + 1)] is not '%': moves.append('N')
-		if self.maze[(x + 1, y)] is not '%': moves.append('E')
-		if self.maze[(x - 1, y)] is not '%': moves.append('W')
-		if self.maze[(x, y - 1)] is not '%': moves.append('S')
+	def getLegalMoves(self, position, orientation):
+		"""
+		returns list of possible moves
+		list in order: N, E, W, S
+		"""
+		# if position in self.terminal:
+		# 	return ['exit']
 
-		return moves
+		directions = []
+		x, y = position[0], position[1]
+
+		if self.maze[(x, y + 1)] is not '%': directions.append('N')
+		if self.maze[(x + 1, y)] is not '%': directions.append('E')
+		if self.maze[(x - 1, y)] is not '%': directions.append('W')
+		if self.maze[(x, y - 1)] is not '%': directions.append('S')
+
+		return util.directionToActionLst(orientation, directions)
 
 	def getValue(self, position):
 		if (position == "exit"): return 0
@@ -60,7 +69,7 @@ class Maze:
 	def updateMaze(self, position, value):
 		self.maze[position] = value
 
-	def isTerminal(position):
-		if position in terminal: 
+	def isTerminal(self, position):
+		if position in self.terminal: 
 			return True
 		return False

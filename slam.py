@@ -8,6 +8,7 @@ import util
 import os.path
 import collections
 import datetime, time
+import filters
 
 
 def printToFile(output, posDist, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon):
@@ -62,7 +63,7 @@ def error(arg):
 
 def buildAgent(agent, maze, MDP, alpha, gamma, epsilon):
 	if agent.lower() == 'qlearning':
-		return reinforcementAlgo.QLearningAgent(maze, MDP, alpha, gamma, epsilon)
+		return reinforcementAlgo.FilterQLearningAgent(maze, MDP, alpha, gamma, epsilon, filters.ExactInference(maze, MDP))
 	elif 'sarsa' in agent.lower():
 		return reinforcementAlgo.SarsaAgent(maze, MDP, alpha, gamma, epsilon)
 	else:

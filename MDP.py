@@ -5,10 +5,10 @@ import util
 # import mazeFunctions
 
 def initMDP(arg):
-	move = ["N", "E", "W", "S"]
+	move = ["F", "R", "L", "B"]
 	MDP = {}
 
-	infile = open("./MDP/" + arg + ".mdp", "r")
+	infile = open("./TransFuncs/" + arg + ".mdp", "r")
 	lst = infile.read().splitlines()
 
 	for line in lst:
@@ -33,38 +33,35 @@ class MDP:
 	 W:{N:n, E:e, W:w, S:s},
 	 S:{N:n, E:e, W:w, S:s}}
 	"""
-	MDP = {}
-	maze = None
-
 	def __init__(self, maze, arg):
 		self.MDP = initMDP(arg)
 		self.maze = maze
 
 
-	def normalize(self, position, move):
+	def normalize(self, position, move, legalMoves):
 		"""
 		If all four moves are possible form a position, does not change
 		MDP. If some moves are illegal, adjusts MDP such that the sum
 		of all moves = 1
 		"""
 		total = 0.0
-		for act in self.maze.getLegalMoves(position):
+		for act in legalMoves:
 			total += self.MDP[move][act]
 
 		newMDP = {}
-		for act in self.maze.getLegalMoves(position):
+		for act in legalMoves:
 			newMDP[act] = self.MDP[move][act]/total
 
 		return newMDP
 
-	def getMDPMove(self, position, move):
+	def getMDPMove(self, position, move, legalMoves):
 		if move is 'exit': return move
 
 		rand = random.random()
-		newMDP = self.normalize(position, move)
+		newMDP = self.normalize(position, move, legalMoves)
 		total = 0
 
-		for act in self.maze.getLegalMoves(position):
+		for act in legalMoves:
 			total += newMDP[act]
 			if rand <= total: return act
 
