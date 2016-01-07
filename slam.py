@@ -65,7 +65,7 @@ def buildAgent(agent, maze, MDP, alpha, gamma, epsilon):
 	if agent.lower() == 'qlearning':
 		return reinforcementAlgo.FilterQLearningAgent(maze, MDP, alpha, gamma, epsilon, filters.ExactInference(maze, MDP))
 	elif 'sarsa' in agent.lower():
-		return reinforcementAlgo.SarsaAgent(maze, MDP, alpha, gamma, epsilon)
+		return reinforcementAlgo.FilterSarsaAgent(maze, MDP, alpha, gamma, epsilon, filters.ExactInference(maze, MDP))
 	else:
 		error(2)
 

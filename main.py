@@ -11,7 +11,7 @@ import datetime, time
 
 
 def printToFile(output, posDist, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon):
-	dataFile = open("./Data/" + mazeIn + "/" + agentIn + "/" + output, 'w')
+	dataFile = open(output, 'w')
 	dataFile.write(datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S') + "\n")
 	dataFile.write("Agent:" + str(agentIn) + "\t\tMaze: "+ str(mazeIn) + "\t\tTrans. Function: " + str(mdpIn) + "\t\tTrials: " + str(trials) + "\n")
 	dataFile.write("alpha: " + str(alpha) + "\t\tgamma: " + str(gamma) + "\t\tepsilon: " + str(epsilon) + "\n")
@@ -84,15 +84,16 @@ def main(argv):
 	mdpIn = 'deterministic'
 	agentIn = ''
 	trials = 1
+	sampleSize = 1
 	alpha = 0.5
 	gamma = 0.8
 	epsilon = 0
-	output = None
+	output = ""
 	consoleOut = True
 	fileOut = True
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:", ["maze=", "agent=", "trials=", "MDP=", "output=", "consoleOut-Off", "fileOut-Off"])
+		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:", ["maze=", "agent=", "trials=", "samples=", "MDP=", "output=", "consoleOut-Off", "fileOut-Off"])
 	except getopt.GetoptError:
 		help()
 
@@ -107,6 +108,8 @@ def main(argv):
 			agentIn = arg.lower()
 		elif opt in ('-n', '--trials'):
 			trials = int(arg)
+		elif opt in ('--samples'):
+			sampleSize = int(arg)
 		elif opt in ('-a'):
 			alpha = float(arg)
 		elif opt in ('-g'):
@@ -120,8 +123,7 @@ def main(argv):
 		elif opt in("--fileOut-Off"):
 			fileOut = False
  
-	if (output == None):
-		output = agentIn + '-a' + str(alpha) + '-g' + str(gamma) + '-e' + str(epsilon)
+	output += agentIn + '-a' + str(alpha) + '-g' + str(gamma) + '-e' + str(epsilon)
 
 	# Build Maze
 	if (not os.path.exists("./Layouts/" + mazeIn + ".lay")): error(0)
@@ -134,9 +136,10 @@ def main(argv):
 	# Build Agent
 	agent = buildAgent(agentIn, maze, mdp, alpha, gamma, epsilon)
 	
-	# Run agent through maze for n trials 
-	for i in range(trials):
-		path = game.playMaze(agent, maze)
+	# Run agent through maze for n trials
+	for s in range(sampleSize): 
+		for i in range(trials):
+			path = game.playMaze(agent, maze)
 
 	#print("final path:")
 	#print(path)

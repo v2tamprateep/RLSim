@@ -6,7 +6,7 @@ def playMaze(agent, maze):
 	path = []
 
 	while not agent.finishedMaze():
-		#print(agent.position)
+		print(agent.qValues)
 		move = agent.getMove()
 		path.append(move)
 
