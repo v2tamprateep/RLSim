@@ -62,7 +62,7 @@ class QLearningAgent(RLAgent):
 		where the max is over legal actions.
 		"""
 		legalActions = self.maze.getLegalMoves(state, self.orientation)
-		lst = [self.qValues[(state, act, self.orientation)] for act in legalActions]
+		lst = [self.qValues[(state, util.actionToDirection(self.orientation, act))] for act in legalActions]
 		return max(lst)
 
 	def getMove(self):
@@ -74,7 +74,7 @@ class QLearningAgent(RLAgent):
 			self.updateAgentState(moves[0])
 			return moves[0]
 
-		lst = [(self.qValues[(self.position, move)], move) for move in moves]
+		lst = [(self.qValues[(self.position, util.actionToDirection(self.orientation, move))], move) for move in moves]
 		best = max(lst)[0]
 	
 		tiedMoves = [move for val, move in lst if val == best]
@@ -88,7 +88,7 @@ class QLearningAgent(RLAgent):
 
 	def updateQValue(self, action):
 		nextPos = self.nextPosition(self.position, action, self.orientation)
-		currVal = self.qValues[(self.position, action, self.orientation)]
+		currVal = self.qValues[(self.position, util.actionToDirection(self.orientation, action))]
 		nextVal = self.computeValueFromQValues(nextPos)
 		rewardOrCost = self.maze.getValue(nextPos)
 
@@ -96,7 +96,7 @@ class QLearningAgent(RLAgent):
 			rewardOrCost = -1
 			if (action == 'B'): rewardOrCost *= 10
 
-		self.qValues[(self.position, action, self.orientation)] = currVal + self.alpha*(rewardOrCost + nextVal - currVal)
+		self.qValues[(self.position, util.actionToDirection(self.orientation, action))] = currVal + self.alpha*(rewardOrCost + nextVal - currVal)
 
 # SARSA
 class SarsaAgent(QLearningAgent):
@@ -112,7 +112,7 @@ class SarsaAgent(QLearningAgent):
 			self.updateAgentState(moves[0])
 			return moves[0]
 
-		lst = [(self.qValues[(self.position, move)], move) for move in moves]
+		lst = [(self.qValues[(self.position, util.actionToDirection(self.orientation, move))], move) for move in moves]
 		best = max(lst)[0]
 	
 		tiedMoves = [move for val, move in lst if val == best]
@@ -132,25 +132,31 @@ class FilterQLearningAgent(RLAgent):
 		self.epsilon = epsilon
 		self.inference = filterType
 		self.qValues = util.Counter()
-	
+
+	def resetPosition(self, start):
+		self.position = self.maze.start[0]
+		self.orientation = self.maze.start[1]
+		self.inference.initBelief()
+		#self.inference.observeLegalActions(self.position, self.orientation)
+
 	def computeValueFromQValues(self, state):
 		"""
 		Returns max_action Q(state,action)
 		where the max is over legal actions.
 		"""
 		legalActions = self.maze.getLegalMoves(state, self.orientation)
-		lst = [self.qValues[(state, act, self.orientation)] for act in legalActions]
+		lst = [self.qValues[(state, util.actionToDirection(self.orientation, act))] for act in legalActions]
 		return max(lst)
 
 	def getMove(self):
 		self.inference.observeLegalActions(self.position, self.orientation)
-
 		moves = self.maze.getLegalMoves(self.position, self.orientation)
 		if random.random() < self.epsilon: moves = [random.choice(moves)]
 
 		if (len(moves) == 1):
 			self.updateQValue(moves[0])
 			self.updateAgentState(moves[0])
+			self.inference.elapseTime(moves[0])
 			return moves[0]
 
 		lst = [(self.inference.getProbabilisticQVal(self.qValues, move), move) for move in moves]
@@ -169,15 +175,16 @@ class FilterQLearningAgent(RLAgent):
 	def updateQValue(self, action):
 		for pos, ori in self.inference.getPossibleStates():
 			nextPos = self.nextPosition(pos, action, ori)
-			currVal = self.qValues[(pos, action, ori)]
+			currVal = self.qValues[(pos, util.actionToDirection(ori, action))]
 			nextVal = self.computeValueFromQValues(nextPos)
+			#print(pos, nextPos, nextVal)
 			rewardOrCost = self.maze.getValue(nextPos)
 
 			if (rewardOrCost == 0):
-				rewardOrCost = -0.1
+				rewardOrCost = -1
 				if (action == 'B'): rewardOrCost *= 10
 
-			self.qValues[(pos, action, ori)] = currVal + self.alpha*(rewardOrCost + nextVal - currVal)
+			self.qValues[(pos, util.actionToDirection(ori, action))] = currVal + self.alpha*(rewardOrCost + nextVal - currVal)
 
 class FilterSarsaAgent(FilterQLearningAgent):
 	def __init__(self, maze, MDP, alpha, gamma, epsilon, filterType):
@@ -192,6 +199,7 @@ class FilterSarsaAgent(FilterQLearningAgent):
 		if (len(moves) == 1):
 			self.updateQValue(moves[0])
 			self.updateAgentState(moves[0])
+			self.inference.elapseTime(moves[0])
 			return moves[0]
 
 		lst = [(self.inference.getProbabilisticQVal(self.qValues, move), move) for move in moves]

@@ -5,15 +5,16 @@ class ExactInference:
 	def __init__(self, Maze, MDP):
 		self.maze = Maze
 		self.agentMDP = MDP
-
-		# initialize belief as normal distribution over all legal states
 		self.belief = util.Counter()
+		self.initBelief()
+
+	def initBelief(self):
 		actions = self.maze.getLegalMoves(self.maze.start[0], self.maze.start[1])
 		for pos in self.maze.getLegalStates():
 			for ori in ['N', 'E', 'W', 'S']:
 				if (actions == self.maze.getLegalMoves(pos, ori)):
 					self.belief[(pos, ori)] += 1
-		self.belief.normalize()
+		self.belief.normalize()	
 
 	def getPossibleStates(self):
 		return [(pos, ori) for pos, ori in self.belief.keys() if self.belief[(pos, ori)] > 0]
@@ -21,21 +22,11 @@ class ExactInference:
 	def getProbabilisticQVal(self, qVals, action):
 		probQval = 0
 		for pos, ori in self.getPossibleStates():
-			probQval += self.belief[(pos, ori)] * qVals[(pos, action, ori)]
+			probQval += self.belief[(pos, ori)] * qVals[(pos, util.actionToDirection(ori, action))]
 		return probQval
-
-	def getProbabilisticReward(self, action):
-		transFunc = self.agentMDP.MDP[action]
-		probR = 0
-		for pos, ori in self.getPossibleStates():
-			for mdpMove in self.maze.getLegalMoves(pos, ori):
-				newPos = self.nextState(pos, mdpMove, ori)[0]
-				probR += self.maze.getValue(newPos) * transFunc[mdpMove] * self.belief[(pos, ori)]
-		return probR
 
 	def observeLegalActions(self, position, orientation):
 		actions = self.maze.getLegalMoves(position, orientation)
-
 		for pos, ori in self.getPossibleStates():
 			tempActs = self.maze.getLegalMoves(pos, ori)
 			if (actions != tempActs):
@@ -51,10 +42,9 @@ class ExactInference:
 		transFunc = self.agentMDP.MDP[action]
 
 		for pos, ori in self.getPossibleStates():
-			for act in  self.maze.getLegalMoves(pos, ori):
+			for act in self.maze.getLegalMoves(pos, ori):
 				newDist[self.nextState(pos, act, ori)] += transFunc[act] * self.belief[(pos, ori)]
 		newDist.normalize()
-		#print(newDist)
 		self.belief = newDist
 		#TODO double check this function
 
