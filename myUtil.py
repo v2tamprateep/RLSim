@@ -63,7 +63,7 @@ class Counter(dict):
         Counter will result in an error.
         """
         total = float(self.totalCount())
-        if total == 0: return
+        if total == 0: return self
         for key in self.keys():
             self[key] = self[key] / total
 

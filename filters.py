@@ -12,7 +12,9 @@ class ExactInference:
 		actions = self.maze.getLegalMoves(self.maze.start[0], self.maze.start[1])
 		for pos in self.maze.getLegalStates():
 			for ori in ['N', 'E', 'W', 'S']:
-				if (actions == self.maze.getLegalMoves(pos, ori)):
+				#print(pos, ori)
+				#print(actions, self.maze.getLegalMoves(pos, ori))
+				if (sorted(actions) == sorted(self.maze.getLegalMoves(pos, ori))):
 					self.belief[(pos, ori)] += 1
 		self.belief.normalize()	
 
@@ -29,13 +31,29 @@ class ExactInference:
 		actions = self.maze.getLegalMoves(position, orientation)
 		for pos, ori in self.getPossibleStates():
 			tempActs = self.maze.getLegalMoves(pos, ori)
-			if (actions != tempActs):
+			if (sorted(actions) != sorted(tempActs)):
 				self.belief[(pos, ori)] = 0
 		self.belief.normalize()
 
-	def observeCues(self):
-		# TODO
-		pass
+	def observeCues(self, cue):
+		if (cue is None): return
+		# pos is the position the cue was observed
+		cueType, pos = cue[0], cue[1]
+		likelihood = util.Counter()
+
+		if (cueType == 1):
+			likelihood[pos] = 1
+		elif (cueType == 2):
+			for state, ori in self.getPossibleStates():
+				if (self.maze.distToWalls(pos) == self.maze.distToWalls(state)):
+					likelihood[state] = 1
+		# likelihood.normalize()
+		newBelief = util.Counter()
+		for state, ori in self.getPossibleStates():
+			prob = self.belief[(state, ori)] * likelihood[pos]
+			if (prob != 0): newBelief[(state, ori)] = prob
+		newBelief.normalize()
+		self.belief = newBelief
 
 	def elapseTime(self, action):
 		newDist = util.Counter()
@@ -43,7 +61,7 @@ class ExactInference:
 
 		for pos, ori in self.getPossibleStates():
 			for act in self.maze.getLegalMoves(pos, ori):
-				newDist[self.nextState(pos, act, ori)] += transFunc[act] * self.belief[(pos, ori)]
+				 newDist[self.nextState(pos, act, ori)] += transFunc[act] * self.belief[(pos, ori)]
 		newDist.normalize()
 		self.belief = newDist
 		#TODO double check this function

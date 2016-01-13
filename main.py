@@ -103,7 +103,7 @@ def main(argv):
 		elif opt == '--MDP':
 			mdpIn = arg.lower()
 		elif opt in ('-m', '--maze'):
-			mazeIn = arg.lower()
+			mazeIn = arg
 		elif opt in ('-A', '--agent'):
 			agentIn = arg.lower()
 		elif opt in ('-n', '--trials'):

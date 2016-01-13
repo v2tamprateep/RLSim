@@ -9,37 +9,36 @@ def initMaze(arg):
 	start = 0
 	terminal = []
 	dictionary = {}
+	cues = {}
 	x, y, = 0, 0
 
 	for line in lst[::-1]:
 		for char in line:
 			if char.isdigit():
 				dictionary[(x, y)] = int(char)*10
+				terminal.append((x, y))
 			elif char != '%':
 				dictionary[(x, y)] = 0
 			else:
 				dictionary[(x, y)] = char
-			if char.isdigit(): terminal.append((x, y))
 
 			dirSymbols = ['^', '>', 'v' '<']
 			if str(char) in dirSymbols:
 				directions = ['N', 'E', 'S', 'W']
 				start = ((x, y), directions[dirSymbols.index(str(char))])
+
+			if (str(char).isalpha()):
+				cues[(x, y)] = 2 
 			x += 1
 		x = 0
 		y += 1
 
-#	dictionary['exit'] = 0
 	infile.close()
-	return (dictionary, start, terminal)
+	return (dictionary, start, terminal, cues)
 
 class Maze:
-	"""arg in order: maze, start, termianl"""
 	def __init__(self, arg):
-		self.maze, self.start, self.terminal = initMaze(arg)
-		# self.maze = arg[0]
-		# self.start = arg[1]
-		# self.terminal = arg[2]
+		self.maze, self.start, self.terminal, self.cues = initMaze(arg)
 
 	def getLegalStates(self):
 		return [state for state in self.maze.keys() if self.maze[state] != '%']
@@ -47,11 +46,7 @@ class Maze:
 	def getLegalMoves(self, position, orientation):
 		"""
 		returns list of possible moves
-		list in order: N, E, W, S
 		"""
-		# if position in self.terminal:
-		# 	return ['exit']
-
 		directions = []
 		x, y = position[0], position[1]
 
@@ -62,12 +57,31 @@ class Maze:
 
 		return util.directionToActionLst(orientation, directions)
 
+	def getCues(self, position):
+		"""
+		return (cueType, position)
+		"""
+		try:
+			return (self.cues[position], position)
+		except:
+			return None
+
 	def getValue(self, position):
 		if (position == "exit"): return 0
 		return self.maze[position]
 
 	def updateMaze(self, position, value):
 		self.maze[position] = value
+
+	def distToWalls(self, position):
+		dic, x, y = {}, position[0], position[1]
+		for direction, dx, dy in [('N', 0, 1), ('E', 0, 1), ('W', 0, -1), ('S', -1, 0)]:
+			count, i = 0, 0
+			while self.getValue((x + dx*i, y + dy*i)) != '%':
+				count += 1
+				i += 1
+			dic[direction] = count
+		return dic
 
 	def isTerminal(self, position):
 		if position in self.terminal: 

@@ -1,5 +1,4 @@
 
-# import sys
 import random
 import myUtil as util
 
@@ -137,7 +136,6 @@ class FilterQLearningAgent(RLAgent):
 		self.position = self.maze.start[0]
 		self.orientation = self.maze.start[1]
 		self.inference.initBelief()
-		#self.inference.observeLegalActions(self.position, self.orientation)
 
 	def computeValueFromQValues(self, state):
 		"""
@@ -150,6 +148,8 @@ class FilterQLearningAgent(RLAgent):
 
 	def getMove(self):
 		self.inference.observeLegalActions(self.position, self.orientation)
+		self.inference.observeCues(self.maze.getCues(self.position))
+
 		moves = self.maze.getLegalMoves(self.position, self.orientation)
 		if random.random() < self.epsilon: moves = [random.choice(moves)]
 
