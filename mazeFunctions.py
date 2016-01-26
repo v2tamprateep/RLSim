@@ -39,11 +39,13 @@ def initMaze(arg):
 class Maze:
 	def __init__(self, arg):
 		self.maze, self.start, self.terminal, self.cues = initMaze(arg)
+		self.exploreVal = {state:1 for state in self.maze.keys()}
+		self.exploreVal[self.start] = 0
 
 	def getLegalStates(self):
 		return [state for state in self.maze.keys() if self.maze[state] != '%']
 		
-	def getLegalMoves(self, position, orientation):
+	def getLegalActions(self, position, orientation):
 		"""
 		returns list of possible moves
 		"""
@@ -56,6 +58,20 @@ class Maze:
 		if self.maze[(x, y - 1)] is not '%': directions.append('S')
 
 		return util.directionToActionLst(orientation, directions)
+
+	def getLegalDirections(self, position):
+		"""
+		returns list of possible moves
+		"""
+		directions = []
+		x, y = position[0], position[1]
+
+		if self.maze[(x, y + 1)] is not '%': directions.append('N')
+		if self.maze[(x + 1, y)] is not '%': directions.append('E')
+		if self.maze[(x - 1, y)] is not '%': directions.append('W')
+		if self.maze[(x, y - 1)] is not '%': directions.append('S')
+
+		return directions
 
 	def getCues(self, position):
 		"""
@@ -82,6 +98,11 @@ class Maze:
 				i += 1
 			dic[direction] = count
 		return dic
+
+	def getExploreVal(self, position):
+		v = self.exploreVal[position]
+		self.exploreVal[position] = 0
+		return v
 
 	def isTerminal(self, position):
 		if position in self.terminal: 

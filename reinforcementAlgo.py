@@ -3,18 +3,21 @@ import random
 import myUtil as util
 
 class RLAgent(object):
-	def __init__(self, maze, MDP):
-		self.maze = maze
-		self.position = self.maze.start[0]
-		self.orientation = self.maze.start[1]
+
+	def __init__(self, Maze, MDP, actionCost = -1):
+		self.Maze = Maze
+		self.position = self.Maze.start[0]
+		self.orientation = self.Maze.start[1]
 		self.MDP = MDP
 
 		self.posCounter = util.Counter()
-		for key in maze.maze.keys():
-			if (self.maze.maze[key] != "%"):
+		for key in Maze.maze.keys():
+			if (self.Maze.maze[key] != "%"):
 				self.posCounter[key] = 0
+
 		# Agent is in first position at least once
 		self.posCounter[self.position] = 1
+		self.actCosts = {'F': actionCost, 'R':actionCost, 'B':actionCost*10, 'L':actionCost}
 
 	def nextPosition(self, position, action, orientation):
 		direction = util.actionToDirection(orientation, action)
@@ -26,46 +29,51 @@ class RLAgent(object):
 		if direction is 'S': return (x, y - 1)
 
 	def updateAgentState(self, action):
-		moves = self.maze.getLegalMoves(self.position, self.orientation)
+		moves = self.Maze.getLegalActions(self.position, self.orientation)
 		self.position = self.nextPosition(self.position, action, self.orientation)
 		self.orientation = util.actionToDirection(self.orientation, action)
 		if (action == 'B'):
+			# if ()
 			self.orientation = util.oppositeAction(self.orientation)
-		#if (action == 'E' or action == 'W'):
-		#	self.orientation = util.actionToDirection(self.orientation, action)
-		#	if ('B' not in moves):
+
 		self.posCounter[self.position] += 1
 
 	def getMove(self):
 		pass
 
 	def finishedMaze(self):
-		return self.maze.isTerminal(self.position)
+		return self.Maze.isTerminal(self.position)
 
 	def resetPosition(self, start):
-		self.position = self.maze.start[0]
-		self.orientation = self.maze.start[1]
+		self.position = self.Maze.start[0]
+		self.orientation = self.Maze.start[1]
+		for state in self.Maze.exploreVal.keys():
+			self.Maze.exploreVal[state] += 1
 
 # Q-Learning
 class QLearningAgent(RLAgent):
-	def __init__(self, maze, MDP, alpha, gamma, epsilon):
-		super(QLearningAgent, self).__init__(maze, MDP)
+	def __init__(self, Maze, MDP, alpha, gamma, epsilon):
+		super(QLearningAgent, self).__init__(Maze, MDP)
 		self.alpha = alpha
 		self.gamma = gamma
 		self.epsilon = epsilon
+
 		self.qValues = util.Counter()
+		for state in self.Maze.getLegalStates():
+			for direction in self.Maze.getLegalDirections(state):
+				self.qValues[(state, direction)] = 0
         
 	def computeValueFromQValues(self, state):
 		"""
 		Returns max_action Q(state,action)
 		where the max is over legal actions.
 		"""
-		legalActions = self.maze.getLegalMoves(state, self.orientation)
+		legalActions = self.Maze.getLegalActions(state, self.orientation)
 		lst = [self.qValues[(state, util.actionToDirection(self.orientation, act))] for act in legalActions]
 		return max(lst)
 
 	def getMove(self):
-		moves = self.maze.getLegalMoves(self.position, self.orientation)
+		moves = self.Maze.getLegalActions(self.position, self.orientation)
 		if random.random() < self.epsilon: moves = [random.choice(moves)]
 
 		if (len(moves) == 1):
@@ -74,6 +82,12 @@ class QLearningAgent(RLAgent):
 			return moves[0]
 
 		lst = [(self.qValues[(self.position, util.actionToDirection(self.orientation, move))], move) for move in moves]
+
+		# lst = []
+		# for (move in moves):
+		# 	explorationReward = self.Maze.getExploreVal(self.nextPosition(self.position, action, self.orientation))
+		# 	lst.append((self.qValues[(self.position, util.actionToDirection(self.orientation, move))] + explorationReward, move))
+
 		best = max(lst)[0]
 	
 		tiedMoves = [move for val, move in lst if val == best]
@@ -86,24 +100,26 @@ class QLearningAgent(RLAgent):
 		return mdpMove
 
 	def updateQValue(self, action):
+		# print("-----------------------")
+		# print(self.qValues)
 		nextPos = self.nextPosition(self.position, action, self.orientation)
 		currVal = self.qValues[(self.position, util.actionToDirection(self.orientation, action))]
 		nextVal = self.computeValueFromQValues(nextPos)
-		rewardOrCost = self.maze.getValue(nextPos)
 
-		if (rewardOrCost == 0):
-			rewardOrCost = -1
-			if (action == 'B'): rewardOrCost *= 10
+		""" reward = Maze_reward/times_reward_received + cost_of_action + reward_for_exploration """
+		reward = self.Maze.getValue(nextPos) + self.actCosts[action]
+		# reward = self.Maze.getValue(nextPos)/(1 + self.posCounter[nextPos]) + self.actCosts[action] + self.Maze.getExploreVal(nextPos)
+		# reward = self.Maze.getValue(nextPos)/(1 + self.posCounter[nextPos]) + self.actCosts[action]
 
-		self.qValues[(self.position, util.actionToDirection(self.orientation, action))] = currVal + self.alpha*(rewardOrCost + nextVal - currVal)
+		self.qValues[(self.position, util.actionToDirection(self.orientation, action))] = currVal + self.alpha*(reward + nextVal - currVal)
 
 # SARSA
 class SarsaAgent(QLearningAgent):
-	def __init__(self, maze, MDP, alpha, gamma, epsilon):
-		super(SarsaAgent, self).__init__(maze, MDP, alpha, gamma, epsilon)
+	def __init__(self, Maze, MDP, alpha, gamma, epsilon):
+		super(SarsaAgent, self).__init__(Maze, MDP, alpha, gamma, epsilon)
 
 	def getMove(self):
-		moves = self.maze.getLegalMoves(self.position, self.orientation)
+		moves = self.Maze.getLegalActions(self.position, self.orientation)
 		if random.random() < self.epsilon: moves = [random.choice(moves)]
 
 		if (len(moves) == 1):
@@ -124,8 +140,8 @@ class SarsaAgent(QLearningAgent):
 		return mdpMove
 
 class FilterQLearningAgent(RLAgent):
-	def __init__(self, maze, MDP, alpha, gamma, epsilon, filterType):
-		super(FilterQLearningAgent, self).__init__(maze, MDP)
+	def __init__(self, Maze, MDP, alpha, gamma, epsilon, filterType):
+		super(FilterQLearningAgent, self).__init__(Maze, MDP)
 		self.alpha = alpha
 		self.gamma = gamma
 		self.epsilon = epsilon
@@ -133,8 +149,8 @@ class FilterQLearningAgent(RLAgent):
 		self.qValues = util.Counter()
 
 	def resetPosition(self, start):
-		self.position = self.maze.start[0]
-		self.orientation = self.maze.start[1]
+		self.position = self.Maze.start[0]
+		self.orientation = self.Maze.start[1]
 		self.inference.initBelief()
 
 	def computeValueFromQValues(self, state):
@@ -142,15 +158,15 @@ class FilterQLearningAgent(RLAgent):
 		Returns max_action Q(state,action)
 		where the max is over legal actions.
 		"""
-		legalActions = self.maze.getLegalMoves(state, self.orientation)
+		legalActions = self.Maze.getLegalActions(state, self.orientation)
 		lst = [self.qValues[(state, util.actionToDirection(self.orientation, act))] for act in legalActions]
 		return max(lst)
 
 	def getMove(self):
 		self.inference.observeLegalActions(self.position, self.orientation)
-		self.inference.observeCues(self.maze.getCues(self.position))
+		self.inference.observeCues(self.Maze.getCues(self.position))
 
-		moves = self.maze.getLegalMoves(self.position, self.orientation)
+		moves = self.Maze.getLegalActions(self.position, self.orientation)
 		if random.random() < self.epsilon: moves = [random.choice(moves)]
 
 		if (len(moves) == 1):
@@ -160,6 +176,12 @@ class FilterQLearningAgent(RLAgent):
 			return moves[0]
 
 		lst = [(self.inference.getProbabilisticQVal(self.qValues, move), move) for move in moves]
+
+		# lst = []
+		# for (move in moves):
+		# 	explorationReward = self.Maze.getExploreVal(self.nextPosition(self.position, action, self.orientation))
+		# 	lst.append((self.qValues[(self.position, util.actionToDirection(self.orientation, move))] + explorationReward, move))
+		
 		best = max(lst)[0]
 	
 		tiedMoves = [move for val, move in lst if val == best]
@@ -177,23 +199,21 @@ class FilterQLearningAgent(RLAgent):
 			nextPos = self.nextPosition(pos, action, ori)
 			currVal = self.qValues[(pos, util.actionToDirection(ori, action))]
 			nextVal = self.computeValueFromQValues(nextPos)
-			#print(pos, nextPos, nextVal)
-			rewardOrCost = self.maze.getValue(nextPos)
 
-			if (rewardOrCost == 0):
-				rewardOrCost = -1
-				if (action == 'B'): rewardOrCost *= 10
+			""" reward = Maze_reward/times_reward_received + cost_of_action + reward_for_exploration """
+			reward = self.Maze.getValue(nextPos)/(1 + self.posCounter[nextPos]) + self.actCosts[action] + self.Maze.getExploreVal(nextPos)
+			# reward = self.Maze.getValue(nextPos)/(1 + self.posCounter[nextPos]) + self.actCosts[action]
 
-			self.qValues[(pos, util.actionToDirection(ori, action))] = currVal + self.alpha*(rewardOrCost + nextVal - currVal)
+			self.qValues[(pos, util.actionToDirection(ori, action))] = currVal + self.alpha*(reward + nextVal - currVal)
 
 class FilterSarsaAgent(FilterQLearningAgent):
-	def __init__(self, maze, MDP, alpha, gamma, epsilon, filterType):
-		super(FilterSarsaAgent, self).__init__(maze, MDP, alpha, gamma, epsilon, filterType)
+	def __init__(self, Maze, MDP, alpha, gamma, epsilon, filterType):
+		super(FilterSarsaAgent, self).__init__(Maze, MDP, alpha, gamma, epsilon, filterType)
 
 	def getMove(self):
 		self.inference.observeLegalActions(self.position, self.orientation)
 
-		moves = self.maze.getLegalMoves(self.position, self.orientation)
+		moves = self.Maze.getLegalActions(self.position, self.orientation)
 		if random.random() < self.epsilon: moves = [random.choice(moves)]
 
 		if (len(moves) == 1):
