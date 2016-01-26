@@ -9,12 +9,12 @@ class ExactInference:
 		self.initBelief()
 
 	def initBelief(self):
-		actions = self.maze.getLegalMoves(self.maze.start[0], self.maze.start[1])
+		actions = self.maze.getLegalActions(self.maze.start[0], self.maze.start[1])
 		for pos in self.maze.getLegalStates():
 			for ori in ['N', 'E', 'W', 'S']:
 				#print(pos, ori)
-				#print(actions, self.maze.getLegalMoves(pos, ori))
-				if (sorted(actions) == sorted(self.maze.getLegalMoves(pos, ori))):
+				#print(actions, self.maze.getLegalActions(pos, ori))
+				if (sorted(actions) == sorted(self.maze.getLegalActions(pos, ori))):
 					self.belief[(pos, ori)] += 1
 		self.belief.normalize()	
 
@@ -28,9 +28,9 @@ class ExactInference:
 		return probQval
 
 	def observeLegalActions(self, position, orientation):
-		actions = self.maze.getLegalMoves(position, orientation)
+		actions = self.maze.getLegalActions(position, orientation)
 		for pos, ori in self.getPossibleStates():
-			tempActs = self.maze.getLegalMoves(pos, ori)
+			tempActs = self.maze.getLegalActions(pos, ori)
 			if (sorted(actions) != sorted(tempActs)):
 				self.belief[(pos, ori)] = 0
 		self.belief.normalize()
@@ -60,7 +60,7 @@ class ExactInference:
 		transFunc = self.agentMDP.MDP[action]
 
 		for pos, ori in self.getPossibleStates():
-			for act in self.maze.getLegalMoves(pos, ori):
+			for act in self.maze.getLegalActions(pos, ori):
 				 newDist[self.nextState(pos, act, ori)] += transFunc[act] * self.belief[(pos, ori)]
 		newDist.normalize()
 		self.belief = newDist

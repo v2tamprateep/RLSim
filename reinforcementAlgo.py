@@ -100,15 +100,13 @@ class QLearningAgent(RLAgent):
 		return mdpMove
 
 	def updateQValue(self, action):
-		# print("-----------------------")
-		# print(self.qValues)
 		nextPos = self.nextPosition(self.position, action, self.orientation)
 		currVal = self.qValues[(self.position, util.actionToDirection(self.orientation, action))]
 		nextVal = self.computeValueFromQValues(nextPos)
 
 		""" reward = Maze_reward/times_reward_received + cost_of_action + reward_for_exploration """
-		reward = self.Maze.getValue(nextPos) + self.actCosts[action]
-		# reward = self.Maze.getValue(nextPos)/(1 + self.posCounter[nextPos]) + self.actCosts[action] + self.Maze.getExploreVal(nextPos)
+		# reward = self.Maze.getValue(nextPos) + self.actCosts[action]
+		reward = self.Maze.getValue(nextPos)/(1 + self.posCounter[nextPos]) + self.actCosts[action] + self.Maze.getExploreVal(nextPos)
 		# reward = self.Maze.getValue(nextPos)/(1 + self.posCounter[nextPos]) + self.actCosts[action]
 
 		self.qValues[(self.position, util.actionToDirection(self.orientation, action))] = currVal + self.alpha*(reward + nextVal - currVal)
@@ -146,7 +144,11 @@ class FilterQLearningAgent(RLAgent):
 		self.gamma = gamma
 		self.epsilon = epsilon
 		self.inference = filterType
+
 		self.qValues = util.Counter()
+		for state in self.Maze.getLegalStates():
+			for direction in self.Maze.getLegalDirections(state):
+				self.qValues[(state, direction)] = 0
 
 	def resetPosition(self, start):
 		self.position = self.Maze.start[0]
@@ -176,11 +178,6 @@ class FilterQLearningAgent(RLAgent):
 			return moves[0]
 
 		lst = [(self.inference.getProbabilisticQVal(self.qValues, move), move) for move in moves]
-
-		# lst = []
-		# for (move in moves):
-		# 	explorationReward = self.Maze.getExploreVal(self.nextPosition(self.position, action, self.orientation))
-		# 	lst.append((self.qValues[(self.position, util.actionToDirection(self.orientation, move))] + explorationReward, move))
 		
 		best = max(lst)[0]
 	
