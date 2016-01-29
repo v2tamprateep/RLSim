@@ -283,26 +283,22 @@ def matrixAsList( matrix, value = True ):
 Direction: North, East, West, South
 Action: Forwards, Left, Right, Backwards
 """
+cardinalDir = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
+actionLst = ['F', 'FR', 'R', 'BR', 'B', 'BL', 'L', 'FL']
+
 def directionToAction(orientation, direction):
-    cardinalDir = ['N', 'E', 'S', 'W']
-    actionLst = ['F', 'R', 'B', 'L']
-    
     oriIndex = cardinalDir.index(orientation)
     dirIndex = cardinalDir.index(direction)
 
-    if (dirIndex < oriIndex): dirIndex += 4
+    if (dirIndex < oriIndex): dirIndex += 8
     diff = dirIndex - oriIndex
-
     return actionLst[diff]
  
 def actionToDirection(orientation, action):
-    cardinalDir = ['N', 'E', 'S', 'W']
-    actionLst = ['F', 'R', 'B', 'L']
-    
     oriIndex = cardinalDir.index(orientation)
     actIndex = actionLst.index(action)
 
-    return cardinalDir[(oriIndex + actIndex)%4]
+    return cardinalDir[(oriIndex + actIndex)%8]
 
 def directionToActionLst(orientation, directions):
     lst = []
@@ -312,4 +308,7 @@ def directionToActionLst(orientation, directions):
 
 opposite = {'N':'S', 'S':'N', 'W':'E', 'E':'W', 'F':'B', 'B':'F', 'L':'R', 'R':'L'}
 def oppositeAction(action):
-    return opposite[action]
+    opAct = ''
+    for a in action:
+        opAct += opposite[a]
+    return opAct

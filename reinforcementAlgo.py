@@ -6,49 +6,53 @@ class RLAgent(object):
 
 	def __init__(self, Maze, MDP, actionCost = -1):
 		self.Maze = Maze
-		self.position = self.Maze.start[0]
-		self.orientation = self.Maze.start[1]
+		self.position = None
+		self.orientation = None
 		self.MDP = MDP
+		self.actionCost = actionCost
 
 		self.posCounter = util.Counter()
 		for key in Maze.maze.keys():
 			if (self.Maze.maze[key] != "%"):
 				self.posCounter[key] = 0
 
-		# Agent is in first position at least once
-		self.posCounter[self.position] = 1
-		self.actCosts = {'F': actionCost, 'R':actionCost, 'B':actionCost*10, 'L':actionCost}
+	def resetAgentState(self):
+		self.position = self.Maze.start[0]
+		self.orientation = self.Maze.start[1]
+		self.posCounter[self.position] += 1
+
+		for state in self.Maze.exploreVal.keys():
+			self.Maze.exploreVal[state] += 1
 
 	def nextPosition(self, position, action, orientation):
 		direction = util.actionToDirection(orientation, action)
 		x, y = position[0], position[1]
 
-		if direction is 'N': return (x, y + 1)
-		if direction is 'E': return (x + 1, y)
-		if direction is 'W': return (x - 1, y)
-		if direction is 'S': return (x, y - 1)
+		for d in direction:
+			if d is 'N': y += 1
+			if d is 'E': x += 1
+			if d is 'W': x -= 1
+			if d is 'S': y -= 1
+		return (x, y)
 
 	def updateAgentState(self, action):
 		moves = self.Maze.getLegalActions(self.position, self.orientation)
 		self.position = self.nextPosition(self.position, action, self.orientation)
 		self.orientation = util.actionToDirection(self.orientation, action)
-		if (action == 'B'):
-			# if ()
+		if ('B' in action):
 			self.orientation = util.oppositeAction(self.orientation)
 
 		self.posCounter[self.position] += 1
+
+	def getActionCost(self, action):
+		if ('B' in action): return 10* self.actionCost
+		else: return self.actionCost
 
 	def getMove(self):
 		pass
 
 	def finishedMaze(self):
 		return self.Maze.isTerminal(self.position)
-
-	def resetPosition(self, start):
-		self.position = self.Maze.start[0]
-		self.orientation = self.Maze.start[1]
-		for state in self.Maze.exploreVal.keys():
-			self.Maze.exploreVal[state] += 1
 
 # Q-Learning
 class QLearningAgent(RLAgent):
@@ -58,7 +62,7 @@ class QLearningAgent(RLAgent):
 		self.gamma = gamma
 		self.epsilon = epsilon
 
-		self.qValues = util.Counter()
+		self.qValues = {}
 		for state in self.Maze.getLegalStates():
 			for direction in self.Maze.getLegalDirections(state):
 				self.qValues[(state, direction)] = 0
@@ -106,7 +110,7 @@ class QLearningAgent(RLAgent):
 
 		""" reward = Maze_reward/times_reward_received + cost_of_action + reward_for_exploration """
 		# reward = self.Maze.getValue(nextPos) + self.actCosts[action]
-		reward = self.Maze.getValue(nextPos)/(1 + self.posCounter[nextPos]) + self.actCosts[action] + self.Maze.getExploreVal(nextPos)
+		reward = self.Maze.getValue(nextPos)/(1 + self.posCounter[nextPos]) + self.getActionCost(action) + self.Maze.getExploreVal(nextPos)
 		# reward = self.Maze.getValue(nextPos)/(1 + self.posCounter[nextPos]) + self.actCosts[action]
 
 		self.qValues[(self.position, util.actionToDirection(self.orientation, action))] = currVal + self.alpha*(reward + nextVal - currVal)

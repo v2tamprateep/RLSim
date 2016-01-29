@@ -1,4 +1,8 @@
-F: {F: 1, R: 0, L: 0, B: 0}
-R: {F: 0, R: 1, L: 0, B: 0}
-L: {F: 0, R: 0, L: 1, B: 0}
-B: {F: 0, R: 0, L: 0, B: 1}
+F: {F: 1, R: 0, L: 0, B: 0, FR: 0, FL: 0, BR: 0, BL: 0}
+R: {F: 0, R: 1, L: 0, B: 0, FR: 0, FL: 0, BR: 0, BL: 0}
+L: {F: 0, R: 0, L: 1, B: 0, FR: 0, FL: 0, BR: 0, BL: 0}
+B: {F: 0, R: 0, L: 0, B: 1, FR: 0, FL: 0, BR: 0, BL: 0}
+FR: {F: 0, R: 0, L: 0, B: 0, FR: 1, FL: 0, BR: 0, BL: 0}
+FL: {F: 0, R: 0, L: 0, B: 0, FR: 0, FL: 1, BR: 0, BL: 0}
+BR: {F: 0, R: 0, L: 0, B: 0, FR: 0, FL: 0, BR: 1, BL: 0}
+BL: {F: 0, R: 0, L: 0, B: 0, FR: 0, FL: 0, BR: 0, BL: 1}

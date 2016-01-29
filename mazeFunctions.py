@@ -56,6 +56,10 @@ class Maze:
 		if self.maze[(x + 1, y)] is not '%': directions.append('E')
 		if self.maze[(x - 1, y)] is not '%': directions.append('W')
 		if self.maze[(x, y - 1)] is not '%': directions.append('S')
+		if self.maze[(x - 1, y + 1)] is not '%': directions.append('NW')
+		if self.maze[(x - 1, y - 1)] is not '%': directions.append('SW')
+		if self.maze[(x + 1, y + 1)] is not '%': directions.append('NE')
+		if self.maze[(x + 1, y - 1)] is not '%': directions.append('SE')
 
 		return util.directionToActionLst(orientation, directions)
 
@@ -70,6 +74,10 @@ class Maze:
 		if self.maze[(x + 1, y)] is not '%': directions.append('E')
 		if self.maze[(x - 1, y)] is not '%': directions.append('W')
 		if self.maze[(x, y - 1)] is not '%': directions.append('S')
+		if self.maze[(x - 1, y + 1)] is not '%': directions.append('NW')
+		if self.maze[(x - 1, y - 1)] is not '%': directions.append('SW')
+		if self.maze[(x + 1, y + 1)] is not '%': directions.append('NE')
+		if self.maze[(x + 1, y - 1)] is not '%': directions.append('SE')
 
 		return directions
 

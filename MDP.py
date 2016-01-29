@@ -5,7 +5,7 @@ import util
 # import mazeFunctions
 
 def initMDP(arg):
-	move = ["F", "R", "L", "B"]
+	move = ["F", "R", "L", "B", "FR", "FL", "BR", "BL"]
 	MDP = {}
 
 	infile = open("./TransFuncs/" + arg + ".mdp", "r")
@@ -13,16 +13,14 @@ def initMDP(arg):
 
 	for line in lst:
 		i = 0
-		MDP[line[0]] = {}
-		# print(MDP)	
-		for word in line.split():
+		wordlst = line.split()
+		first = wordlst[0][:-1]
+		MDP[first] = {}
+		for word in wordlst:
 			isfloat = util.isfloat(word[:-1])
-			# print("Current word: " + word[:-1] + " isfloat: " + str(isfloat))
 			if isfloat != -1:
-				MDP[line[0]][move[i]] = isfloat
-				# print(MDP)
+				MDP[first][move[i]] = isfloat
 				i += 1
-	# print(MDP)
 	return MDP
 
 class MDP:
@@ -36,7 +34,6 @@ class MDP:
 	def __init__(self, maze, arg):
 		self.MDP = initMDP(arg)
 		self.maze = maze
-
 
 	def normalize(self, position, move, legalMoves):
 		"""
