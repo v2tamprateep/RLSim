@@ -6,8 +6,8 @@ class RLAgent(object):
 
 	def __init__(self, Maze, MDP, actionCost = -1):
 		self.Maze = Maze
-		self.position = None
-		self.orientation = None
+		self.position = Maze.start[0]
+		self.orientation = Maze.start[1]
 		self.MDP = MDP
 		self.actionCost = actionCost
 
@@ -98,6 +98,9 @@ class QLearningAgent(RLAgent):
 		maxQMove = random.choice(tiedMoves)
 		mdpMove = self.MDP.getMDPMove(self.position, maxQMove, moves)
 
+		direction = util.actionToDirection(self.orientation, mdpMove)
+		#print("--"),
+		#print(direction)
 		# Qlearning updates according to BEST action
 		self.updateQValue(maxQMove)
 		self.updateAgentState(mdpMove)
@@ -109,8 +112,8 @@ class QLearningAgent(RLAgent):
 		nextVal = self.computeValueFromQValues(nextPos)
 
 		""" reward = Maze_reward/times_reward_received + cost_of_action + reward_for_exploration """
-		# reward = self.Maze.getValue(nextPos) + self.actCosts[action]
-		reward = self.Maze.getValue(nextPos)/(1 + self.posCounter[nextPos]) + self.getActionCost(action) + self.Maze.getExploreVal(nextPos)
+		reward = self.Maze.getValue(nextPos) + self.getActionCost(action)
+		# reward = self.Maze.getValue(nextPos)/(1 + self.posCounter[nextPos]) + self.getActionCost(action) + self.Maze.getExploreVal(nextPos)
 		# reward = self.Maze.getValue(nextPos)/(1 + self.posCounter[nextPos]) + self.actCosts[action]
 
 		self.qValues[(self.position, util.actionToDirection(self.orientation, action))] = currVal + self.alpha*(reward + nextVal - currVal)
