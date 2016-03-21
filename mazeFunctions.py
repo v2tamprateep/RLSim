@@ -2,7 +2,7 @@
 import myUtil as util
 
 # read in maze file and store in dictionary
-def initMaze(arg):
+def initMaze(arg, reward):
 	infile = open("./Layouts/" + arg + ".lay", "r")
 	lst = infile.read().splitlines()
 
@@ -14,8 +14,8 @@ def initMaze(arg):
 
 	for line in lst[::-1]:
 		for char in line:
-			if char.isdigit():
-				dictionary[(x, y)] = int(char)*10
+			if str(char) == "R":
+				dictionary[(x, y)] = reward
 				terminal.append((x, y))
 			elif char != '%':
 				dictionary[(x, y)] = 0
@@ -37,10 +37,12 @@ def initMaze(arg):
 	return (dictionary, start, terminal, cues)
 
 class Maze:
-	def __init__(self, arg):
-		self.maze, self.start, self.terminal, self.cues = initMaze(arg)
+	def __init__(self, arg, reward, reset):
+		self.discount = 1
+		self.maze, self.start, self.terminal, self.cues = initMaze(arg, reward)
 		self.exploreVal = {state:1 for state in self.maze.keys()}
 		self.exploreVal[self.start] = 0
+		self.reset = reset
 
 	def getLegalStates(self):
 		return [state for state in self.maze.keys() if self.maze[state] != '%']
@@ -94,6 +96,12 @@ class Maze:
 		if (position == "exit"): return 0
 		return self.maze[position]
 
+	def getDiscountValue(self, position):
+		if util.flipCoin(self.reset): self.discount = 1
+		ret = self.maze[position]/self.discount
+		self.discount += 1
+		return ret
+
 	def updateMaze(self, position, value):
 		self.maze[position] = value
 
@@ -108,9 +116,7 @@ class Maze:
 		return dic
 
 	def getExploreVal(self, position):
-		v = self.exploreVal[position]
-		self.exploreVal[position] = 0
-		return v
+		return self.exploreVal[position]
 
 	def isTerminal(self, position):
 		if position in self.terminal: 

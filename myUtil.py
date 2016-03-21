@@ -18,6 +18,7 @@ import heapq, random
 import cStringIO
 import datetime, time
 import pandas as pd
+import random
 
 """
 Help Message/Error Catching
@@ -297,6 +298,9 @@ def getProbability(value, distribution, values):
 def flipCoin( p ):
     r = random.random()
     return r < p
+
+def randomMove(lst):
+    return random.choice(lst)
 
 def chooseFromDistribution( distribution ):
     "Takes either a counter or a list of (prob, key) pairs and samples"
