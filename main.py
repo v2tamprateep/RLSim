@@ -44,7 +44,7 @@ def main(argv):
 	sampleSize = 1
 	alpha = 0.5
 	gamma = 0.8
-	epsilon = 0
+	epsilon = 0.1
 	back_cost = 1
 	maze_reset = 0
 	maze_reward = 5

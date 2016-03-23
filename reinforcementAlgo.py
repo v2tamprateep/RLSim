@@ -113,9 +113,9 @@ class QLearningAgent(RLAgent):
 		nextVal = self.computeValueFromQValues(nextPos)
 
 		""" reward = Maze_reward/times_reward_received + cost_of_action + reward_for_exploration """
-		#reward = self.Maze.getValue(nextPos) + self.getActionCost(action)
-		reward = self.Maze.getDiscountValue(nextPos) + self.getActionCost(action) + self.Maze.getExploreVal(nextPos)
-		#reward = self.Maze.getDiscountValue(nextPos) + self.getActionCost(action)
+		reward = self.Maze.getValue(nextPos) + self.getActionCost(action)
+		# reward = self.Maze.getDiscountValue(nextPos) + self.getActionCost(action) + self.Maze.getExploreVal(nextPos)
+		# reward = self.Maze.getDiscountValue(nextPos) + self.getActionCost(action)
 
 		self.qValues[(self.position, util.actionToDirection(self.orientation, action))] = currVal + self.alpha*(reward + nextVal - currVal)
 
