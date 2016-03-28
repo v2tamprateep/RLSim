@@ -1,9 +1,9 @@
 
 #!/bin/bash
 
-agent="qlearning"
+agent="sarsa"
 maze="hexShort"
-folder="../Data/hexShort/ql_path/ql_std_arb"
+folder="../Data/hexShort/sarsa_path/sarsa_RDER_arb"
 
 # alpha
 for a in 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0; do
@@ -16,7 +16,7 @@ for a in 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0; do
 			if [ ! -d "${directory//.}" ]; then
 				mkdir $folder/${directory//.}
 			fi
-			python main.py --maze=$maze --agent=$agent --trials=114 --samples=30 --output=$folder/${directory//.}/ -a $a --reward=$r --back_cost=$b
+			python main.py --maze=$maze --agent=$agent --output=$folder/${directory//.}/ -a $a --reward=$r --back_cost=$b
 		done
 	done
 done

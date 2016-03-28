@@ -68,7 +68,14 @@ class QLearningAgent(RLAgent):
 		for state in self.Maze.getLegalStates():
 			for direction in self.Maze.getLegalDirections(state):
 				self.qValues[(state, direction)] = 0
-        
+
+	def resetQValues(self):
+		self.qValues = {}
+		for state in self.Maze.getLegalStates():
+			for direction in self.Maze.getLegalDirections(state):
+				self.qValues[(state, direction)] = 0
+
+
 	def computeValueFromQValues(self, state):
 		"""
 		Returns max_action Q(state,action)
@@ -114,8 +121,8 @@ class QLearningAgent(RLAgent):
 
 		""" reward = Maze_reward/times_reward_received + cost_of_action + reward_for_exploration """
 		reward = self.Maze.getValue(nextPos) + self.getActionCost(action)
-		# reward = self.Maze.getDiscountValue(nextPos) + self.getActionCost(action) + self.Maze.getExploreVal(nextPos)
-		# reward = self.Maze.getDiscountValue(nextPos) + self.getActionCost(action)
+		# reward = self.Maze.getValue(nextPos) + self.getActionCost(action)
+		# reward = self.Maze.getValue(nextPos) + self.getActionCost(action) + self.Maze.getExploreVal(nextPos)
 
 		self.qValues[(self.position, util.actionToDirection(self.orientation, action))] = currVal + self.alpha*(reward + nextVal - currVal)
 

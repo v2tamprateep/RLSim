@@ -40,14 +40,14 @@ def main(argv):
 	mazeIn = ''
 	mdpIn = 'deterministic'
 	agentIn = ''
-	trials = 1
-	sampleSize = 1
+	trials = 114
+	sampleSize = 30
 	alpha = 0.5
 	gamma = 0.8
 	epsilon = 0.1
-	back_cost = 1
+	back_cost = 10
 	maze_reset = 0
-	maze_reward = 5
+	maze_reward = 10
 	output = ""
 	consoleOut = True
 	fileOut = True
@@ -107,6 +107,7 @@ def main(argv):
 		for i in range(trials):
 			paths.append(game.playMaze(agent, maze))
 		util.path_csv(s, trials, paths, output)
+		agent.resetQValues()
 		# util.print_path_data_to_file(output, s, paths, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon)
 
 	# print output
