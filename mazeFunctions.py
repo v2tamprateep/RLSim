@@ -38,11 +38,10 @@ def initMaze(arg, reward):
 
 class Maze:
 	def __init__(self, arg, reward, reset):
-		self.discount = 1
+		self.reset, self.discount = reset, 1
 		self.maze, self.start, self.terminal, self.cues = initMaze(arg, reward)
 		self.exploreVal = {state:1 for state in self.maze.keys()}
 		self.exploreVal[self.start] = 0
-		self.reset = reset
 
 	def getLegalStates(self):
 		return [state for state in self.maze.keys() if self.maze[state] != '%']
@@ -51,18 +50,18 @@ class Maze:
 		"""
 		returns list of possible moves
 		"""
-		directions = []
-		x, y = position[0], position[1]
+		# directions = []
+		# x, y = position[0], position[1]
 
-		if self.maze[(x, y + 1)] is not '%': directions.append('N')
-		if self.maze[(x + 1, y)] is not '%': directions.append('E')
-		if self.maze[(x - 1, y)] is not '%': directions.append('W')
-		if self.maze[(x, y - 1)] is not '%': directions.append('S')
-		if self.maze[(x - 1, y + 1)] is not '%': directions.append('NW')
-		if self.maze[(x - 1, y - 1)] is not '%': directions.append('SW')
-		if self.maze[(x + 1, y + 1)] is not '%': directions.append('NE')
-		if self.maze[(x + 1, y - 1)] is not '%': directions.append('SE')
-
+		# if self.maze[(x, y + 1)] is not '%': directions.append('N')
+		# if self.maze[(x + 1, y)] is not '%': directions.append('E')
+		# if self.maze[(x - 1, y)] is not '%': directions.append('W')
+		# if self.maze[(x, y - 1)] is not '%': directions.append('S')
+		# if self.maze[(x - 1, y + 1)] is not '%': directions.append('NW')
+		# if self.maze[(x - 1, y - 1)] is not '%': directions.append('SW')
+		# if self.maze[(x + 1, y + 1)] is not '%': directions.append('NE')
+		# if self.maze[(x + 1, y - 1)] is not '%': directions.append('SE')
+		directions = self.getLegalDirections(position)
 		return util.directionToActionLst(orientation, directions)
 
 	def getLegalDirections(self, position):

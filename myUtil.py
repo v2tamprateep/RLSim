@@ -15,7 +15,7 @@
 import sys
 import inspect
 import heapq, random
-import cStringIO
+# import cStringIO
 import datetime, time
 import pandas as pd
 import random
@@ -52,7 +52,10 @@ def path_csv(sample, trials, paths, output):
     data = {"trials": range(trials), "paths": paths}
     df = pd.DataFrame(data)
     df.set_index("trials", inplace = True)
-    df.to_csv(output + 'sample' + str(sample) + '.csv')
+    if output.endswith('/'):
+        df.to_csv(output + 'sample' + str(sample) + '.csv')
+    else:
+        df.to_csv(output + '.csv')
 
 def print_path_data_to_file(output, sample, paths, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon):
     dataFile = open(output+'sample' + str(sample), 'w')

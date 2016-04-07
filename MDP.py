@@ -1,7 +1,7 @@
 
 import sys
 import random
-import util
+import myUtil as util
 # import mazeFunctions
 
 def initMDP(arg):

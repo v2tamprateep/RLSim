@@ -64,17 +64,17 @@ class QLearningAgent(RLAgent):
 		self.gamma = gamma
 		self.epsilon = epsilon
 
-		self.qValues = {}
-		for state in self.Maze.getLegalStates():
-			for direction in self.Maze.getLegalDirections(state):
-				self.qValues[(state, direction)] = 0
+		self.resetQValues()
 
 	def resetQValues(self):
 		self.qValues = {}
 		for state in self.Maze.getLegalStates():
 			for direction in self.Maze.getLegalDirections(state):
 				self.qValues[(state, direction)] = 0
-
+		if util.flipCoin(self.epsilon):
+			self.qValues[((2, 1), 'NE')] = 1
+			self.qValues[((3, 2), 'N')] = 1
+			self.qValues[((3, 3), 'NW')] = 1
 
 	def computeValueFromQValues(self, state):
 		"""
@@ -96,11 +96,6 @@ class QLearningAgent(RLAgent):
 
 		lst = [(self.qValues[(self.position, util.actionToDirection(self.orientation, move))], move) for move in moves]
 
-		#lst = []
-		#for move in moves:
-		#	explorationReward = self.Maze.getExploreVal(self.nextPosition(self.position, move, self.orientation))
-		#	lst.append((self.qValues[(self.position, util.actionToDirection(self.orientation, move))] + explorationReward, move))
-
 		best = max(lst)[0]
 	
 		tiedMoves = [move for val, move in lst if val == best]
@@ -121,8 +116,9 @@ class QLearningAgent(RLAgent):
 
 		""" reward = Maze_reward/times_reward_received + cost_of_action + reward_for_exploration """
 		reward = self.Maze.getValue(nextPos) + self.getActionCost(action)
-		# reward = self.Maze.getValue(nextPos) + self.getActionCost(action)
+		# reward = self.Maze.getDiscountValue(nextPos) + self.getActionCost(action)
 		# reward = self.Maze.getValue(nextPos) + self.getActionCost(action) + self.Maze.getExploreVal(nextPos)
+		# reward = self.Maze.getDiscountValue(nextPos) + self.getActionCost(action) + self.Maze.getExploreVal(nextPos)
 
 		self.qValues[(self.position, util.actionToDirection(self.orientation, action))] = currVal + self.alpha*(reward + nextVal - currVal)
 

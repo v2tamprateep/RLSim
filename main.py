@@ -103,11 +103,11 @@ def main(argv):
 
 	# Run agent through maze for n trials
 	for s in range(sampleSize):
+		agent.resetQValues()
 		paths = []
 		for i in range(trials):
 			paths.append(game.playMaze(agent, maze))
 		util.path_csv(s, trials, paths, output)
-		agent.resetQValues()
 		# util.print_path_data_to_file(output, s, paths, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon)
 
 	# print output
