@@ -87,7 +87,7 @@ class QLearningAgent(RLAgent):
 
 	def getMove(self):
 		moves = self.Maze.getLegalActions(self.position, self.orientation)
-		if util.flipCoin(self.epsilon): moves = [util.randomMove(moves)]
+		if util.flipCoin(self.alpha): moves = [util.randomMove(moves)]
 
 		if (len(moves) == 1):
 			self.updateQValue(moves[0])

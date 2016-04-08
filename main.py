@@ -92,7 +92,7 @@ def main(argv):
 
 
 	# Build Maze
-	if (not os.path.exists("./Layouts/" + mazeIn + ".lay")): error(0)
+	if (not os.path.exists("./Layouts/" + mazeIn + ".lay")): util.cmdline_error(0)
 	maze = mazeFunctions.Maze(mazeIn, maze_reward, maze_reset)
 
 	# Build MDP

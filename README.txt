@@ -1,5 +1,6 @@
 agent: sarsa
 maze: hexShort
-alpha: 1.0
-reward: 10
-back cost: 10
+alpha: 0.1
+epsilon: 
+reward: 1
+back cost: 1
