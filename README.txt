@@ -1,6 +1,6 @@
-agent: sarsa
+agent: qlearning
 maze: hexShort
-alpha: 0.1
-epsilon: 
-reward: 1
-back cost: 1
+alpha: 0.0
+epsilon: 1.0
+reward: 
+back cost: 

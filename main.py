@@ -53,7 +53,7 @@ def main(argv):
 	fileOut = True
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:", ["maze=", "agent=", "trials=", "samples=", "MDP=", "output=", \
+		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:r:b:", ["maze=", "agent=", "trials=", "samples=", "MDP=", "output=", \
 							"consoleOut-Off", "fileOut-Off", "reset=", "reward=", "back_cost="])
 	except getopt.GetoptError:
 		help()
@@ -77,9 +77,9 @@ def main(argv):
 			gamma = float(arg)
 		elif opt in ('-e'):
 			epsilon = float(arg)
-		elif opt in ('--back_cost'):
+		elif opt in ('--back_cost', '-b'):
 			back_cost = float(arg)
-		elif opt in ('--reward'):
+		elif opt in ('--reward', '-r'):
 			maze_reward = float(arg)
 		elif opt in ('--reset'):
 			maze_reset = float(arg)

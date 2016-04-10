@@ -71,10 +71,10 @@ class QLearningAgent(RLAgent):
 		for state in self.Maze.getLegalStates():
 			for direction in self.Maze.getLegalDirections(state):
 				self.qValues[(state, direction)] = 0
-		if util.flipCoin(self.epsilon):
-			self.qValues[((2, 1), 'NE')] = 1
-			self.qValues[((3, 2), 'N')] = 1
-			self.qValues[((3, 3), 'NW')] = 1
+		# if util.flipCoin(self.epsilon):
+		# 	self.qValues[((2, 1), 'NE')] = 1
+		# 	self.qValues[((3, 2), 'N')] = 1
+		# 	self.qValues[((3, 3), 'NW')] = 1
 
 	def computeValueFromQValues(self, state):
 		"""
@@ -87,7 +87,7 @@ class QLearningAgent(RLAgent):
 
 	def getMove(self):
 		moves = self.Maze.getLegalActions(self.position, self.orientation)
-		if util.flipCoin(self.alpha): moves = [util.randomMove(moves)]
+		if util.flipCoin(self.epsilon): moves = [util.randomMove(moves)]
 
 		if (len(moves) == 1):
 			self.updateQValue(moves[0])
