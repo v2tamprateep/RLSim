@@ -8,11 +8,11 @@ import myUtil as util
 import os.path
 import collections
 
-def buildAgent(agent, maze, MDP, alpha, gamma, epsilon, action_cost):
+def buildAgent(agent, maze, MDP, alpha, gamma, epsilon, learning, action_cost):
 	if agent.lower() == 'qlearning':
-		return reinforcementAlgo.QLearningAgent(maze, MDP, alpha, gamma, epsilon, action_cost)
+		return reinforcementAlgo.QLearningAgent(maze, MDP, alpha, gamma, epsilon, action_cost, learning)
 	elif 'sarsa' in agent.lower():
-		return reinforcementAlgo.SarsaAgent(maze, MDP, alpha, gamma, epsilon, action_cost)
+		return reinforcementAlgo.SarsaAgent(maze, MDP, alpha, gamma, epsilon, action_cost, learning)
 	else:
 		util.cmdline_error(2)
 
@@ -51,10 +51,11 @@ def main(argv):
 	output = ""
 	consoleOut = True
 	fileOut = True
+	learning = 1
 
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:r:b:", ["maze=", "agent=", "trials=", "samples=", "MDP=", "output=", \
-							"consoleOut-Off", "fileOut-Off", "reset=", "reward=", "back_cost="])
+							"consoleOut-Off", "fileOut-Off", "reset=", "reward=", "back_cost=", "learning="])
 	except getopt.GetoptError:
 		help()
 
@@ -89,6 +90,8 @@ def main(argv):
 			consoleOut = False
 		elif opt in("--fileOut-Off"):
 			fileOut = False
+		elif opt in ("--learning"):
+			learning = int(arg)
 
 
 	# Build Maze
@@ -99,16 +102,17 @@ def main(argv):
 	mdp = buildMDP(maze, mdpIn)
 
 	# Build Agent
-	agent = buildAgent(agentIn, maze, mdp, alpha, gamma, epsilon, action_cost={'F':1, 'R':1, 'B':back_cost, 'L':1})
+	agent = buildAgent(agentIn, maze, mdp, alpha, gamma, epsilon, learning, action_cost={'F':1, 'R':1, 'B':back_cost, 'L':1})
 
 	# Run agent through maze for n trials
 	for s in range(sampleSize):
 		agent.resetQValues()
 		paths = []
 		for i in range(trials):
+			if i in [0, 7, 28, 39, 49, 57, 64, 74, 82, 91, 97, 103, 106]:
+				agent.resetQValues()
 			paths.append(game.playMaze(agent, maze))
 		util.path_csv(s, trials, paths, output)
-		# util.print_path_data_to_file(output, s, paths, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon)
 
 	# print output
 	agent.posCounter.normalize()
@@ -127,11 +131,5 @@ def main(argv):
 	"""
 	sys.exit()
 
-
-#maze = None
-#mdp = None
-#agent = None
-
 if __name__ == "__main__":
     main(sys.argv[1:])
-

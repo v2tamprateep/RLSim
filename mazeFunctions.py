@@ -22,7 +22,7 @@ def initMaze(arg, reward):
 			else:
 				dictionary[(x, y)] = char
 
-			dirSymbols = ['^', '>', 'v' '<']
+			dirSymbols = ['^', '>', 'v', '<']
 			if str(char) in dirSymbols:
 				directions = ['N', 'E', 'S', 'W']
 				start = ((x, y), directions[dirSymbols.index(str(char))])
@@ -50,17 +50,6 @@ class Maze:
 		"""
 		returns list of possible moves
 		"""
-		# directions = []
-		# x, y = position[0], position[1]
-
-		# if self.maze[(x, y + 1)] is not '%': directions.append('N')
-		# if self.maze[(x + 1, y)] is not '%': directions.append('E')
-		# if self.maze[(x - 1, y)] is not '%': directions.append('W')
-		# if self.maze[(x, y - 1)] is not '%': directions.append('S')
-		# if self.maze[(x - 1, y + 1)] is not '%': directions.append('NW')
-		# if self.maze[(x - 1, y - 1)] is not '%': directions.append('SW')
-		# if self.maze[(x + 1, y + 1)] is not '%': directions.append('NE')
-		# if self.maze[(x + 1, y - 1)] is not '%': directions.append('SE')
 		directions = self.getLegalDirections(position)
 		return util.directionToActionLst(orientation, directions)
 

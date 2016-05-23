@@ -346,24 +346,6 @@ def matrixAsList( matrix, value = True ):
                 cells.append( ( row, col ) )
     return cells
 
-# def lookup(name, namespace):
-#     """
-#     Get a method or class from any imported module from its name.
-#     Usage: lookup(functionName, globals())
-#     """
-#     dots = name.count('.')
-#     if dots > 0:
-#         moduleName, objName = '.'.join(name.split('.')[:-1]), name.split('.')[-1]
-#         module = __import__(moduleName)
-#         return getattr(module, objName)
-#     else:
-#         modules = [obj for obj in namespace.values() if str(type(obj)) == "<type 'module'>"]
-#         options = [getattr(module, name) for module in modules if name in dir(module)]
-#         options += [obj[1] for obj in namespace.items() if obj[0] == name ]
-#         if len(options) == 1: return options[0]
-#         if len(options) > 1: raise Exception, 'Name conflict for %s'
-#         raise Exception, '%s not found as a method or class' % name
-
 """
 Direction: North, East, West, South
 Action: Forwards, Left, Right, Backwards

@@ -5,6 +5,7 @@ from myUtil import actionToDirection
 
 def playMaze(agent, maze):
 	path = []
+
 	agent.resetAgentState()
 	while not agent.finishedMaze():
 		pos, ori = agent.position, agent.orientation
