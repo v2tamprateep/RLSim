@@ -1,12 +1,11 @@
-
 #!/bin/bash
 
 agent="qlearning"
 maze="hexShort"
 
-for l in `seq 2 4`; do
+for l in `seq 3 4`; do
 	folder="../Data/hexShort/Reset/AERB/qlearning/"
-	echo learning algorithm $l
+
 	if [ "$l" == "1" ]; then
 		folder=$folder"ql_std"
 	elif [ "$l" == "2" ]; then
@@ -33,3 +32,5 @@ for l in `seq 2 4`; do
 		done
 	done
 done
+
+mail -s "$agent script complete" v2tamprateep@gmail.com < /dev/null
