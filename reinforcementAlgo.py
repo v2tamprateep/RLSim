@@ -99,7 +99,6 @@ class QLearningAgent(RLAgent):
 
 		direction = util.actionToDirection(self.orientation, mdpMove)
 
-		# Qlearning updates according to BEST action
 		self.updateQValue(maxQMove)
 		self.updateAgentState(mdpMove)
 		return mdpMove
@@ -124,13 +123,15 @@ class QLearningAgent(RLAgent):
 class SarsaAgent(QLearningAgent):
 	def __init__(self, Maze, MDP, alpha, gamma, epsilon, action_cost, learning):
 		super(SarsaAgent, self).__init__(Maze, MDP, alpha, gamma, epsilon, action_cost, learning)
+		self.prev_state, self.prev_action = None, None
 
-	def getMove(self):
+	def find_move(self):
 		moves = self.Maze.getLegalActions(self.position, self.orientation)
 		if util.flipCoin(self.epsilon): moves = [util.randomMove(moves)]
 
 		if (len(moves) == 1):
-			self.updateQValue(moves[0])
+			self.prev_state = self.position
+			self.prev_action = util.actionToDirection(self.orientation, moves[0])
 			self.updateAgentState(moves[0])
 			return moves[0]
 
@@ -142,10 +143,59 @@ class SarsaAgent(QLearningAgent):
 		maxQMove = util.randomMove(tiedMoves)
 		mdpMove = self.MDP.getMDPMove(self.position, maxQMove, moves)
 
-		# SARSA updates according to action ACTUALLY TAKEN
-		self.updateQValue(mdpMove)
+		self.prev_state = self.position
+		self.prev_action = util.actionToDirection(self.orientation, mdpMove)
+		
 		self.updateAgentState(mdpMove)
 		return mdpMove
+
+	def find_and_update_move(self):
+		moves = self.Maze.getLegalActions(self.position, self.orientation)
+		if util.flipCoin(self.epsilon): moves = [util.randomMove(moves)]
+
+		if (len(moves) == 1):
+			self.updateQValue(self.prev_state, self.prev_action, self.position, moves[0])
+			self.prev_state = self.position
+			self.prev_action = util.actionToDirection(self.orientation, moves[0])
+			self.updateAgentState(moves[0])
+			return moves[0]
+
+		lst = [(self.qValues[(self.position, util.actionToDirection(self.orientation, move))], move) for move in moves]
+
+		best = max(lst)[0]
+	
+		tiedMoves = [move for val, move in lst if val == best]
+		maxQMove = util.randomMove(tiedMoves)
+		mdpMove = self.MDP.getMDPMove(self.position, maxQMove, moves)
+
+		self.updateQValue(self.prev_state, self.prev_action, self.position, mdpMove)
+		self.prev_state = self.position
+		self.prev_action = util.actionToDirection(self.orientation, mdpMove)
+		self.updateAgentState(mdpMove)
+		return mdpMove
+
+	def getMove(self):
+		if (self.prev_action is None):
+			return self.find_move()
+		else:
+			return self.find_and_update_move()
+
+	def updateQValue(self, s1, a1, s2, a2):
+		a2 = util.actionToDirection(self.orientation, a2)
+
+		currVal = self.qValues[(s1, a1)]
+		nextVal = self.qValues[(s2, a2)]
+
+		if self.learning_mode == 1:
+			reward = self.Maze.getValue(s2) + self.getActionCost(a1)
+		elif self.learning_mode == 2:
+			reward = self.Maze.getDiscountValue(s2) + self.getActionCost(a1)
+		elif self.learning_mode == 3:
+			reward = self.Maze.getValue(s2) + self.getActionCost(a1) + self.Maze.getExploreVal(s2)
+		elif self.learning_mode == 4:
+			reward = self.Maze.getDiscountValue(s2) + self.getActionCost(a1) + self.Maze.getExploreVal(s2)
+
+		self.qValues[(s1, a1)] = currVal + self.alpha*(reward + nextVal - currVal)
 
 """
 Filter-Based Agents
