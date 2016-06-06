@@ -3,7 +3,7 @@
 agent="qlearning"
 maze="hexShort"
 
-for l in `seq 3 4`; do
+for l in `seq 4 4`; do
 	folder="../Data/hexShort/Reset/AERB/qlearning/"
 
 	if [ "$l" == "1" ]; then
