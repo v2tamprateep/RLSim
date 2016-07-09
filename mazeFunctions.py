@@ -85,6 +85,8 @@ class Maze:
 		return self.maze[position]
 
 	def getDiscountValue(self, position):
+		if (position == "exit"): return 0
+		
 		if util.flipCoin(self.reset): self.discount = 1
 		ret = self.maze[position]/self.discount
 		self.discount += 1

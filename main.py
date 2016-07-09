@@ -109,8 +109,9 @@ def main(argv):
 		agent.resetQValues()
 		paths = []
 		for i in range(trials):
-			if i in [0, 7, 28, 39, 49, 57, 64, 74, 82, 91, 97, 103, 106]:
-				agent.resetQValues()
+			print("TRIAL {0}".format(i))
+		#	if i in [0, 7, 28, 39, 49, 57, 64, 74, 82, 91, 97, 103, 106]:
+		#		agent.resetQValues()
 			paths.append(game.playMaze(agent, maze))
 		util.path_csv(s, trials, paths, output)
 
