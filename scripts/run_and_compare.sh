@@ -4,12 +4,12 @@ while [[ $# > 1 ]]; do
 	key="$1"
 
 	case $key in
-	    -s|--sarsa)
+	    -a|--agent)
 	    agent="$2"
 	    shift # past argument
 	    ;;
-	    -q|--qlearning)
-	    agent="$2"
+	    -r|--reset)
+	    reset="$2"
 	    shift # past argument
 	    ;;
 	    *)
@@ -25,17 +25,17 @@ folder="data/"
 for l in `seq 1 4`; do
 
 	if [ "$l" == "1" ]; then
-		folder="data/"$agent"_std"
-		out=$agent"_std.csv"
+		folder="data/"$agent"_std"$reset
+		out=$agent"_std"$reset".csv"
 	elif [ "$l" == "2" ]; then
-		folder="data/"$agent"_RD"
-		out=$agent"_RD.csv"
+		folder="data/"$agent"_RD"$reset
+		out=$agent"_RD"$reset".csv"
 	elif [ "$l" == "3" ]; then
-		folder="data/"$agent"_ER"
-		out=$agent"_ER.csv"
+		folder="data/"$agent"_ER"$reset
+		out=$agent"_ER"$reset".csv"
 	elif [ "$l" == "4" ]; then
-		folder="data/"$agent"_RDER"
-		out=$agent"_RDER.csv"
+		folder="data/"$agent"_RDER"$reset
+		out=$agent"_RDER"$reset".csv"
 	fi
 
 	mkdir $folder
@@ -48,7 +48,7 @@ for l in `seq 1 4`; do
 					if [ ! -d "${directory//.}" ]; then
 						mkdir $folder/${directory//.}
 					fi
-					python main.py --maze=$maze --agent=$agent --output=$folder/${directory//.}/ -a $a -e $e -r $r -b $b --learning=$l
+					python main.py --maze=$maze --agent=$agent --output=$folder/${directory//.}/ -a $a -e $e -r $r -b $b --learning=$l --Qreset=$reset
 				done
 			done
 		done
