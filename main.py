@@ -2,7 +2,6 @@
 import sys, getopt
 import mazeFunctions
 import reinforcementAlgo
-import game
 import MDP
 import myUtil as util
 import os.path
@@ -37,62 +36,59 @@ def playMaze(agent, maze):
 	return path
 
 def main(argv):
-	mazeIn = ''
-	mdpIn = 'deterministic'
-	agentIn = ''
-	trials = 114
-	sampleSize = 30
-	alpha = 0.5
-	gamma = 0.8
-	epsilon = 0.1
-	back_cost = 10
-	maze_reset = 0
-	maze_reward = 10
-	output = ""
-	consoleOut = True
-	fileOut = True
-	learning = 1
+	mazeIn, mdpIn, agentIn = '', 'deterministic', ''
+
+	# default agent parameters
+	alpha, gamma, epsilon, learning = 0.5, 0.8, 0, 1
+
+	# default environment parameters
+	back_cost, maze_reward, maze_reset = 10, 10, 0
+
+	# default misc. simulator parameters
+	Qreset, output = None, None
+	num_sample, num_trials = 30, 114
 
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:r:b:", ["maze=", "agent=", "trials=", "samples=", "MDP=", "output=", \
-							"consoleOut-Off", "fileOut-Off", "reset=", "reward=", "back_cost=", "learning="])
+							"reset=", "reward=", "back_cost=", "learning=", "Qreset="])
 	except getopt.GetoptError:
 		help()
 
 	for opt, arg in opts:
 		if opt == '-h':
 			help()
-		elif opt == '--MDP':
-			mdpIn = arg.lower()
+
 		elif opt in ('-m', '--maze'):
 			mazeIn = arg
+		elif opt == '--MDP':
+			mdpIn = arg.lower()
 		elif opt in ('-A', '--agent'):
 			agentIn = arg.lower()
-		elif opt in ('-n', '--trials'):
-			trials = int(arg)
-		elif opt in ('--samples'):
-			sampleSize = int(arg)
+
 		elif opt in ('-a'):
 			alpha = float(arg)
 		elif opt in ('-g'):
 			gamma = float(arg)
 		elif opt in ('-e'):
 			epsilon = float(arg)
+		elif opt in ('--learning'):
+			learning = int(arg)
+
 		elif opt in ('--back_cost', '-b'):
 			back_cost = float(arg)
 		elif opt in ('--reward', '-r'):
 			maze_reward = float(arg)
 		elif opt in ('--reset'):
 			maze_reset = float(arg)
-		elif opt in ("--output"):
-			output = arg
-		elif opt in("--consoleOut-Off"):
-			consoleOut = False
-		elif opt in("--fileOut-Off"):
-			fileOut = False
-		elif opt in ("--learning"):
-			learning = int(arg)
 
+		elif opt in ('--Qreset'):
+			Qreset = arg
+		elif opt in ('--output'):
+			output = arg
+		elif opt in ('--samples'):
+			num_samples = int(arg)
+		elif opt in ('-n', '--trials'):
+			num_trials = int(arg)
 
 	# Build Maze
 	if (not os.path.exists("./Layouts/" + mazeIn + ".lay")): util.cmdline_error(0)
@@ -104,15 +100,26 @@ def main(argv):
 	# Build Agent
 	agent = buildAgent(agentIn, maze, mdp, alpha, gamma, epsilon, learning, action_cost={'F':1, 'R':1, 'B':back_cost, 'L':1})
 
+	# find reset points
+	reset_pts = []
+	if Qreset is None:
+		pass
+	elif Qreset.isdigit():
+		reset_pts = range(0, num_trials - 1, int(Qreset))
+	else:
+		for char in Qreset:
+			if char.isdigit(): reset_pts.append(int(char))
+
 	# Run agent through maze for n trials
-	for s in range(sampleSize):
+	for s in range(num_samples):
 		agent.resetQValues()
 		paths = []
-		for i in range(trials):
-		#	if i in [0, 7, 28, 39, 49, 57, 64, 74, 82, 91, 97, 103, 106]:
-		#		agent.resetQValues()
-			paths.append(game.playMaze(agent, maze))
-		util.path_csv(s, trials, paths, output)
+		for i in range(num_trials):
+			if i in reset_pts: agent.resetQValues()
+			paths.append(playMaze(agent, maze))
+
+		if output is not None:
+			util.path_csv(s, num_trials, paths, output)
 
 	# print output
 	agent.posCounter.normalize()
