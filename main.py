@@ -46,7 +46,7 @@ def main(argv):
 
 	# default misc. simulator parameters
 	Qreset, output = None, None
-	num_sample, num_trials = 30, 114
+	num_samples, num_trials = 30, 114
 
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:r:b:", ["maze=", "agent=", "trials=", "samples=", "MDP=", "output=", \
