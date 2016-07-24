@@ -2,7 +2,7 @@
 import myUtil as util
 
 # read in maze file and store in dictionary
-def initMaze(arg, reward):
+def initMaze(arg, reward, deadend_penalty):
 	infile = open("./Layouts/" + arg + ".lay", "r")
 	lst = infile.read().splitlines()
 
@@ -14,14 +14,18 @@ def initMaze(arg, reward):
 
 	for line in lst[::-1]:
 		for char in line:
-			if str(char) == "R":
+			# determine terminal states and borders
+			if str(char) == "R": # terminal state
 				dictionary[(x, y)] = reward
 				terminal.append((x, y))
-			elif char != '%':
+			elif str(char) == "d": # deadend
+				dictionary[(x, y)] = -(deadend_penalty)
+			elif char != '%': # not a wall; valid states
 				dictionary[(x, y)] = 0
 			else:
 				dictionary[(x, y)] = char
 
+			# determine initial orientation
 			dirSymbols = ['^', '>', 'v', '<']
 			if str(char) in dirSymbols:
 				directions = ['N', 'E', 'S', 'W']
@@ -37,9 +41,9 @@ def initMaze(arg, reward):
 	return (dictionary, start, terminal, cues)
 
 class Maze:
-	def __init__(self, arg, reward, reset):
+	def __init__(self, arg, reward, reset, deadend_penalty):
 		self.reset, self.discount = reset, 1
-		self.maze, self.start, self.terminal, self.cues = initMaze(arg, reward)
+		self.maze, self.start, self.terminal, self.cues = initMaze(arg, reward, deadend_penalty)
 		self.exploreVal = {state:1 for state in self.maze.keys()}
 		self.exploreVal[self.start] = 0
 

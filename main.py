@@ -42,15 +42,17 @@ def main(argv):
 	alpha, gamma, epsilon, learning = 0.5, 0.8, 0, 1
 
 	# default environment parameters
-	back_cost, maze_reward, maze_reset = 10, 10, 0
+	back_cost, maze_reward, maze_reset, deadend_penalty = 10, 10, 0, 0
 
 	# default misc. simulator parameters
 	Qreset, output = None, None
 	num_samples, num_trials = 30, 114
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:r:b:", ["maze=", "agent=", "trials=", "samples=", "MDP=", "output=", \
-							"reset=", "reward=", "back_cost=", "learning=", "Qreset="])
+		opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:r:b:", ["maze=", "agent=", "MDP=", \
+																	"learning=", \
+																	"back_cost=", "reward=", "reset=", "deadend=", \
+																	"Qreset=", "output=", "samples=", "trials="])
 	except getopt.GetoptError:
 		help()
 
@@ -60,10 +62,10 @@ def main(argv):
 
 		elif opt in ('-m', '--maze'):
 			mazeIn = arg
-		elif opt == '--MDP':
-			mdpIn = arg.lower()
 		elif opt in ('-A', '--agent'):
 			agentIn = arg.lower()
+		elif opt == '--MDP':
+			mdpIn = arg.lower()
 
 		elif opt in ('-a'):
 			alpha = float(arg)
@@ -80,6 +82,8 @@ def main(argv):
 			maze_reward = float(arg)
 		elif opt in ('--reset'):
 			maze_reset = float(arg)
+		elif opt in ('--deadend'): # as a positive number
+			deadend_penalty = float(arg)
 
 		elif opt in ('--Qreset'):
 			Qreset = arg
@@ -92,7 +96,7 @@ def main(argv):
 
 	# Build Maze
 	if (not os.path.exists("./Layouts/" + mazeIn + ".lay")): util.cmdline_error(0)
-	maze = mazeFunctions.Maze(mazeIn, maze_reward, maze_reset)
+	maze = mazeFunctions.Maze(mazeIn, maze_reward, maze_reset, deadend_penalty)
 
 	# Build MDP
 	mdp = buildMDP(maze, mdpIn)
