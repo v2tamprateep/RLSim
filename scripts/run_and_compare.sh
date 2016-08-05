@@ -12,6 +12,10 @@ while [[ $# > 1 ]]; do
 	    reset="$2"
 	    shift # past argument
 	    ;;
+	    -m|--maze)
+	    maze="$2"
+	    shift
+	    ;;
 	    *)
 	            # unknown option
 	    ;;
@@ -19,22 +23,19 @@ while [[ $# > 1 ]]; do
 	shift # past argument or value
 done
 
-maze="hexShort"
-folder="data/"
-
 for l in `seq 1 4`; do
 
 	if [ "$l" == "1" ]; then
-		folder="data/"$agent"_std"$reset
+		folder=$agent"_std"$reset
 		out=$agent"_std"$reset".csv"
 	elif [ "$l" == "2" ]; then
-		folder="data/"$agent"_RD"$reset
+		folder=$agent"_RD"$reset
 		out=$agent"_RD"$reset".csv"
 	elif [ "$l" == "3" ]; then
-		folder="data/"$agent"_ER"$reset
+		folder=$agent"_ER"$reset
 		out=$agent"_ER"$reset".csv"
 	elif [ "$l" == "4" ]; then
-		folder="data/"$agent"_RDER"$reset
+		folder=$agent"_RDER"$reset
 		out=$agent"_RDER"$reset".csv"
 	fi
 
@@ -54,9 +55,10 @@ for l in `seq 1 4`; do
 		done
 	done
 
-	python data/compare_path.py --data=$folder/ -a -e -r -b --output=data/$out
+	# python data/compare_path.py --data=$folder/ -a -e -r -b --output=data/$out
 	zip -r $folder.zip $folder
 	rm -r $folder
-
-	mail -s "UPDATE: $agent $l complete" v2tamprateep@gmail.com < /dev/null
 done
+
+mail -s "UPDATE: $(hostname) complete" v2tamprateep@gmail.com < /dev/null
+
