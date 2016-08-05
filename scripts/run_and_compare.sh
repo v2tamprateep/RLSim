@@ -16,6 +16,10 @@ while [[ $# > 1 ]]; do
 	    maze="$2"
 	    shift
 	    ;;
+	    -t|--trials)
+	    trials="$2"
+	    shift
+	    ;;
 	    *)
 	            # unknown option
 	    ;;
@@ -49,14 +53,14 @@ for l in `seq 1 4`; do
 					if [ ! -d "${directory//.}" ]; then
 						mkdir $folder/${directory//.}
 					fi
-					python main.py --maze=$maze --agent=$agent --output=$folder/${directory//.}/ -a $a -e $e -r $r -b $b --learning=$l --Qreset=$reset
+					python main.py --maze=$maze --agent=$agent --output=$folder/${directory//.}/ -a $a -e $e -r $r -b $b --learning=$l --Qreset=$reset --trials=$trials
 				done
 			done
 		done
 	done
 
 	# python data/compare_path.py --data=$folder/ -a -e -r -b --output=data/$out
-	zip -r $folder.zip $folder
+	zip -q -r $folder.zip $folder
 	rm -r $folder
 done
 
