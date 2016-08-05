@@ -48,7 +48,7 @@ def main(argv):
     back_cost, maze_reward, maze_reset, deadend_penalty = 10, 10, 0, 0
 
     # default misc. simulator parameters
-    Qreset, output = [], None
+    Qreset, output = '', None
     num_samples, num_trials = 30, 114
 
     try:
@@ -111,7 +111,7 @@ def main(argv):
     reset_pts = []
     if Qreset == 'tri': reset_pts = tri
     elif Qreset == 'trap': reset_pts = trap
-    else: reset_pts = range(0, num_trials-1, int(Qreset))
+    elif Qreset.isdigit(): reset_pts = range(0, num_trials-1, int(Qreset))
 
     # Run agent through maze for n trials
     for s in range(num_samples):
