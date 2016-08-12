@@ -31,9 +31,8 @@ class MDP:
 	 W:{N:n, E:e, W:w, S:s},
 	 S:{N:n, E:e, W:w, S:s}}
 	"""
-	def __init__(self, maze, arg):
-		self.MDP = initMDP(arg)
-		self.maze = maze
+	def __init__(self, mdp):
+		self.MDP = initMDP(mdp)
 
 	def normalize(self, position, move, legalMoves):
 		"""
