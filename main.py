@@ -1,12 +1,11 @@
-
-import sys, getopt
+import sys
+import argparse
 import mazeFunctions
 import reinforcementAlgo
 import MDP
 import myUtil as util
 import os.path
 import collections
-import argparse
 
 tri  = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 89, 97, 100, 103, 106]
 trap = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 91, 97, 103, 106]
