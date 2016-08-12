@@ -8,7 +8,7 @@ maze_arg = ["--mazes", "maze_set3/unbias", "maze_set3/unbias", \
             "maze_set3/antibiasL", "maze_set3/antibiasL", \
             "maze_set3/antibiasL", "maze_set3/unbias", "maze_set3/unbias"]
 
-trial_arg = ["--trials", "100", "117", "62", "133", "109", "142", "100"]
+trial_arg = ["--trials", "137", "98", "60", "91", "81", "92", "106"]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-A", "--algo", required=True)
