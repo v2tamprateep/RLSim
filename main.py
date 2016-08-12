@@ -11,13 +11,13 @@ import argparse
 tri  = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 89, 97, 100, 103, 106]
 trap = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 91, 97, 103, 106]
 
-def build_agent(agent, maze, MDP, alpha, gamma, epsilon, learning, action_cost):
+def build_agent(agent, MDP, alpha, gamma, epsilon, learning, action_cost, maze=None):
     if agent.lower() == 'qlearning':
         return reinforcementAlgo.QLearningAgent(maze, MDP, alpha, gamma, epsilon, action_cost, learning)
     elif 'sarsa' in agent.lower():
         return reinforcementAlgo.SarsaAgent(maze, MDP, alpha, gamma, epsilon, action_cost, learning)
     else:
-        raise argparse.ArgumentError("algo must be either 'qlearning' or 'sarsa'")
+        util.cmdline_error(2)
 
 def build_maze(maze, reward, reset, deadend):
     if not os.path.exists("./Layouts/" + maze + ".lay"):
@@ -26,7 +26,7 @@ def build_maze(maze, reward, reset, deadend):
         return mazeFunctions.Maze(maze, reward, reset, deadend)
 
 def build_MDP(mdpIn):
-    if not os.path.exists("./MDP/" + mdpIn + ".mdp"):
+    if not os.path.exists("./TransFuncs/" + mdpIn + ".mdp"):
         util.cmdline_error(1)
     else:
         return MDP.MDP(mdpIn)
@@ -41,66 +41,11 @@ def play_maze(agent):
     return path
 
 def main(argv):
-#     mazeIn, mdpIn, agentIn = '', 'deterministic', ''
-
-#     # default agent parameters
-#     alpha, gamma, epsilon, learning = 0.5, 0.8, 0, 1
-
-#     # default environment parameters
-#     back_cost, maze_reward, maze_reset, deadend_penalty = 10, 10, 0, 0
-
-#     # default misc. simulator parameters
-#     Qreset, output = '', None
-#     num_samples, num_trials = 30, 114
-
-#     try:
-#         opts, args = getopt.getopt(sys.argv[1:], "hm:A:n:a:g:e:r:b:d:", ["maze=", "agent=", "MDP=", \
-#                                                     "learning=", \
-#                                                     "back_cost=", "reward=", "reset=", "deadend=", \
-#                                                     "Qreset=", "output=", "samples=", "trials="])
-#     except getopt.GetoptError:
-#         help()
-
-#     for opt, arg in opts:
-#         if opt == '-h':
-#             help()
-
-#         elif opt in ('-m', '--maze'):
-#             mazeIn = arg
-#         elif opt in ('-A', '--agent'):
-#             agentIn = arg.lower()
-#         elif opt == '--MDP':
-#             mdpIn = arg.lower()
-
-#         elif opt in ('-a'):
-#             alpha = float(arg)
-#         elif opt in ('-g'):
-#             gamma = float(arg)
-#         elif opt in ('-e'):
-#             epsilon = float(arg)
-#         elif opt in ('--learning'):
-#             learning = int(arg)
-
-#         elif opt in ('--back_cost', '-b'):
-#             back_cost = float(arg)
-#         elif opt in ('--reward', '-r'):
-#             maze_reward = float(arg)
-#         elif opt in ('--reset'):
-#             maze_reset = float(arg)
-#         elif opt in ('--deadend', '-d'): # as a positive number
-#             deadend_penalty = float(arg)
-
-#         elif opt in ('--Qreset'):
-#             Qreset = str(arg)
-#         elif opt in ('--output'):
-#             output = arg
-#         elif opt in ('--samples'):
-#             num_samples = int(arg)
-#         elif opt in ('-n', '--trials'):
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--algo", help="name of reinforcement algorithm", required=True)
-    parser.add_argument("--maze", help="layout file without extension", required=True)
+    parser.add_argument("--mazes", help="path to layout file without extension", nargs="*", required=True)
+    parser.add_argument("-t", "--trials", help="number of trials", nargs="*", type=int, required=True)
+    parser.add_argument("-s", "--samples", help="number of samples", default=30, type=int)
     parser.add_argument("--mdp", help="transition file without extension", default="deterministic", type=str)
     parser.add_argument("-a", "--alpha", help="value of learning rate",default=0.5, type=float)
     parser.add_argument("-g", "--gamma", help="value of discount", default=0.8, type=float)
@@ -111,21 +56,13 @@ def main(argv):
     parser.add_argument("-r", "--reset", help="probability of resetting reward", default=0, type=float)
     parser.add_argument("-d", "--deadend_cost", help="penalty at a deadend", default=0, type=float)
     parser.add_argument("-q", "--Qreset", help="interval in which qvalues or reset", default="", type=str)
-    parser.add_argument("-s", "--samples", help="number of samples", default=30, type=int)
-    parser.add_argument("-t", "--trials", help="number of trials", default=114, type=int)
     parser.add_argument("-o", "--output", help="path to output file with extension", default=None)
     args = parser.parse_args(argv)
 
-    # Build Maze
-    print(args)
-    Maze = build_maze(args.maze, args.reward, args.reset, args.deadend_cost)
-
-    # Build MDP
+    # Build MDP, Agent objects
     MDP = build_MDP(args.mdp)
-
-    # Build Agent
-    Agent = build_agent(args.algo, Maze, MDP, args.alpha, args.gamma, args.epsilon, \
-                        args.learning, action_cost={'F':1, 'R':1, 'B':args.back_cost, 'L':1})
+    Agent = build_agent(args.algo, MDP, args.alpha, args.gamma, args.epsilon, args.learning,\
+                        action_cost={'F':1, 'R':1, 'B':args.back_cost, 'L':1})
 
     # Determine reset points
     reset_pts = []
@@ -134,34 +71,24 @@ def main(argv):
     elif args.Qreset.isdigit(): reset_pts = range(0, args.trials-1, int(args.Qreset))
 
     # Run agent through maze for n trials
+    current_trial = 0
     for s in range(args.samples):
-        Agent.resetQValues()
         paths = []
-        for i in range(args.trials):
-            if i in reset_pts:
-                print(i)
-                Agent.resetQValues()
-            paths.append(play_maze(Agent))
+
+        for maze, trials in zip(args.mazes, args.trials):
+            Maze = build_maze(maze, args.reward, args.reset, args.deadend_cost)
+            Agent.change_maze(Maze)
+
+            for i in range(trials):
+                if i in reset_pts:
+                    Agent.resetQValues()
+                paths.append(play_maze(Agent))
+                current_trial += 1
 
         if args.output is not None:
             util.path_csv(s, args.trials, paths, args.output)
-    """
-    # print output
-    agent.posCounter.normalize()
-    posDist = collections.OrderedDict(sorted(agent.posCounter.items()))
 
-    # for printing position distributions -- not currently used
-
-    # print to console
-    if (consoleOut):
-        util.print_path_data_to_file(posDist, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon)
-
-    # print to file
-    if (fileOut):
-        util.printPathToFile(paths, posDist, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon)
-        util.print_posdist_to_file(output, posDist, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon)
-    """
-    # sys.exit()
+        Agent.resetQValues()
 
 if __name__ == "__main__":
     main(sys.argv[1:])

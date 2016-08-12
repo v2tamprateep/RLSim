@@ -6,18 +6,20 @@ class RLAgent(object):
 
     def __init__(self, Maze, MDP, action_cost):
         self.Maze = Maze
-        self.position = Maze.start[0]
-        self.orientation = Maze.start[1]
+        # self.position = Maze.start[0]
+        # self.orientation = Maze.start[1]
         self.MDP = MDP
         self.action_cost = action_cost
 
         self.posCounter = util.Counter()
-        for key in Maze.maze.keys():
-            if (self.Maze.maze[key] != "%"):
-                self.posCounter[key] = 0
+        # for key in Maze.maze.keys():
+        #     if (self.Maze.maze[key] != "%"):
+        #         self.posCounter[key] = 0
 
     def change_maze(self, maze):
-        self.maze = Maze
+        self.Maze = maze
+        self.position = maze.start[0]
+        self.orientation = maze.start[1]
 
     def resetAgentState(self):
         self.position = self.Maze.start[0]
@@ -63,16 +65,16 @@ class QLearningAgent(RLAgent):
         self.alpha = alpha
         self.gamma = gamma
         self.epsilon = epsilon
-        self.qValues = {}
+        self.qValues = util.Counter()
         self.learning_mode = learning
 
-        self.resetQValues()
+        # self.resetQValues()
 
     def resetQValues(self):
-        self.qValues = {}
-        for state in self.Maze.getLegalStates():
-            for direction in self.Maze.getLegalDirections(state):
-                self.qValues[(state, direction)] = 0
+        self.qValues.reset()
+        # for state in self.Maze.getLegalStates():
+        #     for direction in self.Maze.getLegalDirections(state):
+        #         self.qValues[(state, direction)] = 0
 
     def computeValueFromQValues(self, state):
         """
