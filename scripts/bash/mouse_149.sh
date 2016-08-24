@@ -54,9 +54,9 @@ for l in `seq 1 4`; do
                         mkdir $folder/${directory//.}
                     fi
                     python main.py --algo $algo --output $folder/${directory//.}/ -a $a -e $e -r $r -b $b -l $l -r $reset
-                                    --mazes maze_set3/unbias maze_set3/unbias maze_set3/antibiasL \
+                                    --mazes maze_set3/unbias maze_set3/unbias maze_set3/unbias maze_set3/antibiasL \
                                     maze_set3/antibiasL maze_set3/antibiasL maze_set3/unbias maze_set3/unbias \
-                                    --trials 118 170 116 105 121 106 107
+                                    --trials 118 170 116 105 121 106 107 147
                 done
             done
         done
