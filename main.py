@@ -7,8 +7,10 @@ import myUtil as util
 import os.path
 import collections
 
+"""
 tri  = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 89, 97, 100, 103, 106]
 trap = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 91, 97, 103, 106]
+"""
 
 def build_agent(agent, MDP, alpha, gamma, epsilon, learning, action_cost, maze=None):
     if agent.lower() == 'qlearning':
@@ -63,11 +65,13 @@ def main(argv):
     Agent = build_agent(args.algo, MDP, args.alpha, args.gamma, args.epsilon, args.learning,\
                         action_cost={'F':1, 'R':1, 'B':args.back_cost, 'L':1})
 
+    """
     # Determine reset points
     reset_pts = []
     if args.Qreset == 'tri': reset_pts = tri
     elif args.Qreset == 'trap': reset_pts = trap
     elif args.Qreset.isdigit(): reset_pts = range(0, args.trials-1, int(args.Qreset))
+    """
 
     # Run agent through maze for n trials
     current_trial = 0

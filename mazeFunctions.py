@@ -32,7 +32,7 @@ def initMaze(arg, reward, deadend_penalty):
                 start = ((x, y), directions[dirSymbols.index(str(char))])
 
             if (str(char).isalpha()):
-                cues[(x, y)] = 2 
+                cues[(x, y)] = 2
             x += 1
         x = 0
         y += 1
@@ -47,12 +47,14 @@ class Maze:
         self.exploreVal = {state:1 for state in self.maze.keys()}
         self.exploreVal[self.start] = 0
 
+    """
     def change_maze(self, arg, reward, reset, deadend_penalty):
         self.maze, self.start, self.terminal, self.cues = initMaze(arg, reward, deadend_penalty)
+    """
 
     def getLegalStates(self):
         return [state for state in self.maze.keys() if self.maze[state] != '%']
-        
+
     def getLegalActions(self, position, orientation):
         """
         returns list of possible moves
@@ -80,7 +82,7 @@ class Maze:
 
     def getCues(self, position):
         """
-        return (cueType, position)
+        return (cueType, position); used in filter-based (incomplete)
         """
         try:
             return (self.cues[position], position)
@@ -88,12 +90,14 @@ class Maze:
             return None
 
     def getValue(self, position):
+        """ Return value of maze position """
         if (position == "exit"): return 0
         return self.maze[position]
 
     def getDiscountValue(self, position):
+        """ Return 'discounted' maze value; reward is discounted per visit """
         if (position == "exit"): return 0
-        
+
         if util.flipCoin(self.reset): self.discount = 1
         ret = self.maze[position]/self.discount
         self.discount += 1
@@ -102,6 +106,7 @@ class Maze:
     def updateMaze(self, position, value):
         self.maze[position] = value
 
+    """
     def distToWalls(self, position):
         dic, x, y = {}, position[0], position[1]
         for direction, dx, dy in [('N', 0, 1), ('E', 0, 1), ('W', 0, -1), ('S', -1, 0)]:
@@ -111,11 +116,13 @@ class Maze:
                 i += 1
             dic[direction] = count
         return dic
+    """
 
     def getExploreVal(self, position):
+        """ Bonus for visiting not recently visited states """
         return self.exploreVal[position]
 
     def isTerminal(self, position):
-        if position in self.terminal: 
+        if position in self.terminal:
             return True
         return False
