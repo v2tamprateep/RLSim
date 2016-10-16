@@ -1,27 +1,8 @@
 
 import sys
 import random
-import myUtil as util
-# import mazeFunctions
-
-def initMDP(arg):
-	move = ["F", "R", "L", "B", "FR", "FL", "BR", "BL"]
-	MDP = {}
-
-	infile = open("./TransFuncs/" + arg + ".mdp", "r")
-	lst = infile.read().splitlines()
-
-	for line in lst:
-		i = 0
-		wordlst = line.split()
-		first = wordlst[0][:-1]
-		MDP[first] = {}
-		for word in wordlst:
-			isfloat = util.isfloat(word[:-1])
-			if isfloat != -1:
-				MDP[first][move[i]] = isfloat
-				i += 1
-	return MDP
+import util
+# import Maze
 
 class MDP:
 	"""
@@ -32,7 +13,29 @@ class MDP:
 	 S:{N:n, E:e, W:w, S:s}}
 	"""
 	def __init__(self, mdp):
-		self.MDP = initMDP(mdp)
+		self.MDP = self.load_MDP(mdp)
+
+	def load_MDP(self, arg):
+		"""
+		Read in .mdp file and asve information in dictionary
+		"""
+		move = ["F", "R", "L", "B", "FR", "FL", "BR", "BL"]
+		MDP = {}
+
+		infile = open("./TransFuncs/" + arg + ".mdp", "r")
+		lst = infile.read().splitlines()
+
+		for line in lst:
+			i = 0
+			wordlst = line.split()
+			first = wordlst[0][:-1]
+			MDP[first] = {}
+			for word in wordlst:
+				isfloat = util.isfloat(word[:-1])
+				if isfloat != -1:
+					MDP[first][move[i]] = isfloat
+					i += 1
+		return MDP
 
 	def normalize(self, position, move, legalMoves):
 		"""
@@ -50,7 +53,7 @@ class MDP:
 
 		return newMDP
 
-	def getMDPMove(self, position, move, legalMoves):
+	def get_MDP_move(self, position, move, legalMoves):
 		if move is 'exit': return move
 
 		rand = random.random()
@@ -61,4 +64,4 @@ class MDP:
 			total += newMDP[act]
 			if rand <= total: return act
 
-		print("getMDPMove -- Error: no move returned")
+		print("get_MDP_move -- Error: no move returned")

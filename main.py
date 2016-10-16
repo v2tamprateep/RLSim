@@ -1,16 +1,16 @@
 import sys
 import argparse
-import mazeFunctions
+import Maze
 import reinforcementAlgo
 import MDP
-import myUtil as util
+import util
 import os.path
 import collections
 
-"""
+
 tri  = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 89, 97, 100, 103, 106]
 trap = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 91, 97, 103, 106]
-"""
+
 
 def build_agent(agent, MDP, alpha, gamma, epsilon, learning, action_cost, maze=None):
     if agent.lower() == 'qlearning':
@@ -22,9 +22,10 @@ def build_agent(agent, MDP, alpha, gamma, epsilon, learning, action_cost, maze=N
 
 def build_maze(maze, reward, reset, deadend):
     if not os.path.exists("./Layouts/" + maze + ".lay"):
+        print("./Layouts/" + maze + ".lay")
         util.cmdline_error(0)
     else:
-        return mazeFunctions.Maze(maze, reward, reset, deadend)
+        return Maze.Maze(maze, reward, reset, deadend)
 
 def build_MDP(mdpIn):
     if not os.path.exists("./TransFuncs/" + mdpIn + ".mdp"):
@@ -34,17 +35,17 @@ def build_MDP(mdpIn):
 
 def play_maze(agent):
     path = []
-    agent.resetAgentState()
-    while not agent.finishedMaze():
+    agent.reset_agent_state()
+    while not agent.finished_maze():
         pos, ori = agent.position, agent.orientation
-        move = agent.getMove()
+        move = agent.get_move()
         path.append((pos[0], pos[1], util.actionToDirection(ori, move)))
     return path
 
 def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("--algo", help="name of reinforcement algorithm", required=True)
-    parser.add_argument("--mazes", help="path to layout file without extension", nargs="*", required=True)
+    parser.add_argument("--mazes", help="name of maze (layout file without extension)", nargs="*", required=True)
     parser.add_argument("-t", "--trials", help="number of trials", nargs="*", type=int, required=True)
     parser.add_argument("-s", "--samples", help="number of samples", default=30, type=int)
     parser.add_argument("--mdp", help="transition file without extension", default="deterministic", type=str)
@@ -65,13 +66,13 @@ def main(argv):
     Agent = build_agent(args.algo, MDP, args.alpha, args.gamma, args.epsilon, args.learning,\
                         action_cost={'F':1, 'R':1, 'B':args.back_cost, 'L':1})
 
-    """
+
     # Determine reset points
     reset_pts = []
     if args.Qreset == 'tri': reset_pts = tri
     elif args.Qreset == 'trap': reset_pts = trap
     elif args.Qreset.isdigit(): reset_pts = range(0, args.trials-1, int(args.Qreset))
-    """
+
 
     # Run agent through maze for n trials
     current_trial = 0
@@ -84,14 +85,14 @@ def main(argv):
 
             for i in range(trials):
                 if i in reset_pts:
-                    Agent.resetQValues()
+                    Agent.reset_Qvalues()
                 paths.append(play_maze(Agent))
                 current_trial += 1
 
         if args.output is not None:
             util.path_csv(s, args.trials, paths, args.output)
 
-        Agent.resetQValues()
+        Agent.reset_Qvalues()
 
 if __name__ == "__main__":
     main(sys.argv[1:])

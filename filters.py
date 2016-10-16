@@ -1,5 +1,5 @@
 
-import myUtil as util
+import util
 
 class ExactInference:
 	def __init__(self, Maze, MDP):
@@ -9,12 +9,12 @@ class ExactInference:
 		self.initBelief()
 
 	def initBelief(self):
-		actions = self.maze.getLegalActions(self.maze.start[0], self.maze.start[1])
-		for pos in self.maze.getLegalStates():
+		actions = self.maze.get_legal_actions(self.maze.start[0], self.maze.start[1])
+		for pos in self.maze.get_legal_states():
 			for ori in ['N', 'E', 'W', 'S']:
 				#print(pos, ori)
-				#print(actions, self.maze.getLegalActions(pos, ori))
-				if (sorted(actions) == sorted(self.maze.getLegalActions(pos, ori))):
+				#print(actions, self.maze.get_legal_actions(pos, ori))
+				if (sorted(actions) == sorted(self.maze.get_legal_actions(pos, ori))):
 					self.belief[(pos, ori)] += 1
 		self.belief.normalize()	
 
@@ -28,9 +28,9 @@ class ExactInference:
 		return probQval
 
 	def observeLegalActions(self, position, orientation):
-		actions = self.maze.getLegalActions(position, orientation)
+		actions = self.maze.get_legal_actions(position, orientation)
 		for pos, ori in self.getPossibleStates():
-			tempActs = self.maze.getLegalActions(pos, ori)
+			tempActs = self.maze.get_legal_actions(pos, ori)
 			if (sorted(actions) != sorted(tempActs)):
 				self.belief[(pos, ori)] = 0
 		self.belief.normalize()
@@ -45,7 +45,7 @@ class ExactInference:
 			likelihood[pos] = 1
 		elif (cueType == 2):
 			for state, ori in self.getPossibleStates():
-				if (self.maze.distToWalls(pos) == self.maze.distToWalls(state)):
+				if (self.maze.dist_to_walls(pos) == self.maze.dist_to_walls(state)):
 					likelihood[state] = 1
 		# likelihood.normalize()
 		newBelief = util.Counter()
@@ -60,7 +60,7 @@ class ExactInference:
 		transFunc = self.agentMDP.MDP[action]
 
 		for pos, ori in self.getPossibleStates():
-			for act in self.maze.getLegalActions(pos, ori):
+			for act in self.maze.get_legal_actions(pos, ori):
 				 newDist[self.nextState(pos, act, ori)] += transFunc[act] * self.belief[(pos, ori)]
 		newDist.normalize()
 		self.belief = newDist
