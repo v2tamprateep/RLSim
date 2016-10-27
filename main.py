@@ -1,7 +1,7 @@
 import sys
 import argparse
 import Maze
-import reinforcementAlgo
+import agents
 import MDP
 import util
 import os.path
@@ -14,11 +14,12 @@ trap = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 91, 97, 103, 106]
 
 def build_agent(agent, MDP, alpha, gamma, epsilon, learning, action_cost, maze=None):
     if agent.lower() == 'qlearning':
-        return reinforcementAlgo.QLearningAgent(maze, MDP, alpha, gamma, epsilon, action_cost, learning)
+        return agents.QLearningAgent(maze, MDP, alpha, gamma, epsilon, action_cost, learning)
     elif 'sarsa' in agent.lower():
-        return reinforcementAlgo.SarsaAgent(maze, MDP, alpha, gamma, epsilon, action_cost, learning)
+        return agents.SarsaAgent(maze, MDP, alpha, gamma, epsilon, action_cost, learning)
     else:
         util.cmdline_error(2)
+
 
 def build_maze(maze, reward, reset, deadend):
     if not os.path.exists("./Layouts/" + maze + ".lay"):
@@ -27,20 +28,23 @@ def build_maze(maze, reward, reset, deadend):
     else:
         return Maze.Maze(maze, reward, reset, deadend)
 
+
 def build_MDP(mdpIn):
     if not os.path.exists("./TransFuncs/" + mdpIn + ".mdp"):
         util.cmdline_error(1)
     else:
         return MDP.MDP(mdpIn)
 
+
 def play_maze(agent):
     path = []
     agent.reset_agent_state()
     while not agent.finished_maze():
         pos, ori = agent.position, agent.orientation
-        move = agent.get_move()
+        move = agent.get_action()
         path.append((pos[0], pos[1], util.actionToDirection(ori, move)))
     return path
+
 
 def main(argv):
     parser = argparse.ArgumentParser()
@@ -63,9 +67,8 @@ def main(argv):
 
     # Build MDP, Agent objects
     MDP = build_MDP(args.mdp)
-    Agent = build_agent(args.algo, MDP, args.alpha, args.gamma, args.epsilon, args.learning,\
+    Agent = build_agent(args.algo, args.alpha, args.gamma, args.epsilon, args.learning,\
                         action_cost={'F':1, 'R':1, 'B':args.back_cost, 'L':1})
-
 
     # Determine reset points
     reset_pts = []
@@ -73,14 +76,13 @@ def main(argv):
     elif args.Qreset == 'trap': reset_pts = trap
     elif args.Qreset.isdigit(): reset_pts = range(0, args.trials-1, int(args.Qreset))
 
-
     # Run agent through maze for n trials
     current_trial = 0
     for s in range(args.samples):
         paths = []
 
         for maze, trials in zip(args.mazes, args.trials):
-            Maze = build_maze(maze, args.reward, args.reset, args.deadend_cost)
+            Maze = build_maze(maze, MDP, args.reward, args.reset, args.deadend_cost)
             Agent.change_maze(Maze)
 
             for i in range(trials):

@@ -1,8 +1,8 @@
-F: {F: 1, R: 0, L: 0, B: 0, FR: 0, FL: 0, BR: 0, BL: 0}
-R: {F: 0, R: 1, L: 0, B: 0, FR: 0, FL: 0, BR: 0, BL: 0}
-L: {F: 0, R: 0, L: 1, B: 0, FR: 0, FL: 0, BR: 0, BL: 0}
-B: {F: 0, R: 0, L: 0, B: 1, FR: 0, FL: 0, BR: 0, BL: 0}
-FR: {F: 0, R: 0, L: 0, B: 0, FR: 1, FL: 0, BR: 0, BL: 0}
-FL: {F: 0, R: 0, L: 0, B: 0, FR: 0, FL: 1, BR: 0, BL: 0}
-BR: {F: 0, R: 0, L: 0, B: 0, FR: 0, FL: 0, BR: 1, BL: 0}
-BL: {F: 0, R: 0, L: 0, B: 0, FR: 0, FL: 0, BR: 0, BL: 1}
+N: {N: 1, E: 0, W: 0, S: 0, NE: 0, NW: 0, SE: 0, SW: 0}
+E: {N: 0, E: 1, W: 0, S: 0, NE: 0, NW: 0, SE: 0, SW: 0}
+W: {N: 0, E: 0, W: 1, S: 0, NE: 0, NW: 0, SE: 0, SW: 0}
+S: {N: 0, E: 0, W: 0, S: 1, NE: 0, NW: 0, SE: 0, SW: 0}
+NE: {N: 0, E: 0, W: 0, S: 0, NE: 1, NW: 0, SE: 0, SW: 0}
+NW: {N: 0, E: 0, W: 0, S: 0, NE: 0, NW: 1, SE: 0, SW: 0}
+SE: {N: 0, E: 0, W: 0, S: 0, NE: 0, NW: 0, SE: 1, SW: 0}
+SW: {N: 0, E: 0, W: 0, S: 0, NE: 0, NW: 0, SE: 0, SW: 1}

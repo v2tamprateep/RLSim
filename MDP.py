@@ -2,24 +2,24 @@
 import sys
 import random
 import util
-# import Maze
+
 
 class MDP:
 	"""
-	Organization of MDP:
-	{N:{N:n, E:e, W:w, S:s},
-	 E:{N:n, E:e, W:w, S:s},
-	 W:{N:n, E:e, W:w, S:s},
-	 S:{N:n, E:e, W:w, S:s}}
+	MDP is a dictionary of dictionaries. The outer dictionary maps each action to
+	an inner dictionary. The inner dictionary maps each action to the probability
+	of that action occuring. So, MDP[a][a'] = P(a'|a).
 	"""
+
 	def __init__(self, mdp):
 		self.MDP = self.load_MDP(mdp)
+
 
 	def load_MDP(self, arg):
 		"""
 		Read in .mdp file and asve information in dictionary
 		"""
-		move = ["F", "R", "L", "B", "FR", "FL", "BR", "BL"]
+		move = ["N", "E", "W", "S", "NE", "NW", "SE", "SW"]
 		MDP = {}
 
 		infile = open("./TransFuncs/" + arg + ".mdp", "r")
@@ -37,6 +37,7 @@ class MDP:
 					i += 1
 		return MDP
 
+
 	def normalize(self, position, move, legalMoves):
 		"""
 		If all four moves are possible form a position, does not change
@@ -52,6 +53,7 @@ class MDP:
 			newMDP[act] = self.MDP[move][act]/total
 
 		return newMDP
+
 
 	def get_MDP_move(self, position, move, legalMoves):
 		if move is 'exit': return move
