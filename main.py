@@ -12,21 +12,21 @@ tri  = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 89, 97, 100, 103, 106]
 trap = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 91, 97, 103, 106]
 
 
-def build_agent(agent, MDP, alpha, gamma, epsilon, learning, action_cost, maze=None):
+def build_agent(agent, alpha, gamma, epsilon, learning, action_cost, maze=None):
     if agent.lower() == 'qlearning':
-        return agents.QLearningAgent(maze, MDP, alpha, gamma, epsilon, action_cost, learning)
+        return agents.QLearningAgent(maze, alpha, gamma, epsilon, action_cost, learning)
     elif 'sarsa' in agent.lower():
-        return agents.SarsaAgent(maze, MDP, alpha, gamma, epsilon, action_cost, learning)
+        return agents.SarsaAgent(maze, alpha, gamma, epsilon, action_cost, learning)
     else:
         util.cmdline_error(2)
 
 
-def build_maze(maze, reward, reset, deadend):
+def build_maze(maze, MDP, reward, reset, deadend):
     if not os.path.exists("./Layouts/" + maze + ".lay"):
         print("./Layouts/" + maze + ".lay")
         util.cmdline_error(0)
     else:
-        return Maze.Maze(maze, reward, reset, deadend)
+        return Maze.Maze(maze, MDP, reward, reset, deadend)
 
 
 def build_MDP(mdpIn):

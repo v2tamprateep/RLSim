@@ -9,7 +9,7 @@ class RLAgent(object):
 
     def __init__(self, Maze, action_cost):
         self.Maze = Maze
-        self.MDP = MDP
+        # self.MDP = MDP
         self.action_cost = action_cost
         self.posCounter = util.Counter()
 
@@ -122,13 +122,13 @@ class QLearningAgent(RLAgent):
 
         tiedMoves = [move for val, move in lst if val == best]
         maxQMove = util.randomMove(tiedMoves)
-        mdpMove = self.MDP.get_MDP_move(self.position, maxQMove, moves)
+        # mdpMove = self.MDP.get_MDP_move(self.position, maxQMove, moves)
 
-        direction = util.actionToDirection(self.orientation, mdpMove)
+        direction = util.actionToDirection(self.orientation, maxQMove)
 
         self.update_Qvalues(maxQMove)
-        self.update_agent_state(mdpMove)
-        return mdpMove
+        self.update_agent_state(maxQMove)
+        return maxQMove
 
 
     def update_Qvalues(self, action):
@@ -185,7 +185,7 @@ class SarsaAgent(QLearningAgent):
 
         tiedMoves = [move for val, move in lst if val == best]
         maxQMove = util.randomMove(tiedMoves)
-        mdpMove = self.MDP.get_MDP_move(self.position, maxQMove, moves)
+        # mdpMove = self.MDP.get_MDP_move(self.position, maxQMove, moves)
 
         direction = util.actionToDirection(self.orientation, mdpMove)
         # update Q-values
@@ -194,12 +194,12 @@ class SarsaAgent(QLearningAgent):
 
         # update "previous" moves
         self.prev_state = self.position
-        self.prev_dir = util.actionToDirection(self.orientation, mdpMove)
-        self.prev_action = mdpMove
+        self.prev_dir = util.actionToDirection(self.orientation, maxQMove)
+        self.prev_action = maxQMove
 
         # update agent state
-        self.update_agent_state(mdpMove)
-        return mdpMove
+        self.update_agent_state(maxQMove)
+        return maxQMove
 
 
     def update_Qvalues(self, s1, d1, s2, d2):
