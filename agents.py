@@ -35,32 +35,17 @@ class RLAgent(object):
             self.Maze.exploreVal[state] += 1
 
 
-    def next_position(self, position, action, orientation):
-        """
-        Return next state, given state-action pair and current orientation
-        """
-        direction = util.actionToDirection(orientation, action)
-        x, y = position[0], position[1]
-
-        for d in direction:
-            if d is 'N': y += 1
-            if d is 'E': x += 1
-            if d is 'W': x -= 1
-            if d is 'S': y -= 1
-        return (x, y)
-
-
-    def update_agent_state(self, action):
+    def update_agent_state(self, next_state, action):
         """
         Update agent's orientation and state, given an action
         """
-        moves = self.Maze.get_legal_actions(self.position, self.orientation)
-        self.position = self.next_position(self.position, action, self.orientation)
-        self.orientation = util.actionToDirection(self.orientation, action)
+        self.position = next_state
 
         # if 'backwards' action, flip orientation
-        if ('B' in action):
-            self.orientation = util.oppositeAction(self.orientation)
+        if (util.is_forwards(self.orientation, action)):
+            self.orientation = action
+        else:
+            self.orientation = util.oppositeAction(action)
 
         self.Maze.exploreVal[self.position] = 0
         self.posCounter[self.position] += 1
@@ -79,11 +64,11 @@ class RLAgent(object):
 
 
     def get_action(self):
-        pass    
+        pass
 
 
     def take_action(self, action):
-        new_position = Maze.apply_action(self.position, action)
+        pass
 
 
 """
@@ -105,8 +90,8 @@ class QLearningAgent(RLAgent):
         Returns max_action Q(state,action)
         where the max is over legal actions.
         """
-        legalActions = self.Maze.get_legal_actions(state, self.orientation)
-        lst = [self.qValues[(state, util.actionToDirection(self.orientation, act))] for act in legalActions]
+        legalActions = self.Maze.get_legal_dirs(state)
+        lst = [self.qValues[(state, act)] for act in legalActions]
         return max(lst)
 
 
@@ -114,29 +99,38 @@ class QLearningAgent(RLAgent):
         """
         Compute epsilon greedy move
         """
-        moves = self.Maze.get_legal_actions(self.position, self.orientation)
-        if util.flipCoin(self.epsilon): moves = [util.randomMove(moves)]
+        moves = self.Maze.get_legal_dirs(self.position)
+        if util.flipCoin(self.epsilon):
+            return util.randomMove(moves)
 
-        lst = [(self.qValues[(self.position, util.actionToDirection(self.orientation, move))], move) for move in moves]
+        # get mapping from move to value
+        lst = [(self.qValues[(self.position, move)], move) for move in moves]
         best = max(lst)[0]
 
         tiedMoves = [move for val, move in lst if val == best]
         maxQMove = util.randomMove(tiedMoves)
         # mdpMove = self.MDP.get_MDP_move(self.position, maxQMove, moves)
 
-        direction = util.actionToDirection(self.orientation, maxQMove)
+        # direction = util.actionToDirection(self.orientation, maxQMove)
 
-        self.update_Qvalues(maxQMove)
-        self.update_agent_state(maxQMove)
+        # self.update_Qvalues(maxQMove)
+        # self.update_agent_state(maxQMove)
         return maxQMove
 
 
-    def update_Qvalues(self, action):
+    def take_action(self, action):
+        new_state, taken_action = self.Maze.take_action(self.position, action)
+
+        self.update_Qvalues(taken_action, new_state)
+        self.update_agent_state(new_state, taken_action)
+
+
+    def update_Qvalues(self, action, nextPos):
         """
         Update Qvalues based on learning_mode
         """
-        nextPos = self.next_position(self.position, action, self.orientation)
-        currVal = self.qValues[(self.position, util.actionToDirection(self.orientation, action))]
+        # nextPos = self.next_position(self.position, action, self.orientation)
+        currVal = self.qValues[(self.position, action)]
         nextVal = self.get_value(nextPos)
 
         if self.learning_mode == 1: # std
@@ -148,7 +142,7 @@ class QLearningAgent(RLAgent):
         elif self.learning_mode == 4: # RDER
             reward = self.Maze.get_discount_value(nextPos) + self.get_action_cost(action) + self.Maze.get_exploration_bonus(nextPos)
 
-        self.qValues[(self.position, util.actionToDirection(self.orientation, action))] = currVal + self.alpha*(reward + nextVal - currVal)
+        self.qValues[(self.position, action)] = currVal + self.alpha*(reward + nextVal - currVal)
 
 
 """

@@ -85,6 +85,20 @@ class Maze:
         return directions
 
 
+    def next_state(self, position, action):
+        """
+        Return next state, given state-action pair and current orientation
+        """
+        x, y = position[0], position[1]
+
+        for a in action:
+            if a is 'N': y += 1
+            if a is 'E': x += 1
+            if a is 'W': x -= 1
+            if a is 'S': y -= 1
+        return (x, y)
+
+
     def get_value(self, position):
         """ Return value of maze position """
         if (position == "exit"): return 0
@@ -110,3 +124,12 @@ class Maze:
         if position in self.terminal:
             return True
         return False
+
+
+    def take_action(self, position, action):
+        """
+        returns new state and actual action taken
+        """
+        # apply transition function to action
+        mdp_action = self.MDP.get_MDP_action(position, action, self.get_legal_dirs(position))
+        return self.next_state(position, mdp_action), mdp_action

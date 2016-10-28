@@ -40,9 +40,10 @@ def play_maze(agent):
     path = []
     agent.reset_agent_state()
     while not agent.finished_maze():
-        pos, ori = agent.position, agent.orientation
-        move = agent.get_action()
-        path.append((pos[0], pos[1], util.actionToDirection(ori, move)))
+        pos = agent.position
+        action = agent.get_action()
+        agent.take_action(action)
+        path.append((pos[0], pos[1], action))
     return path
 
 
@@ -68,7 +69,7 @@ def main(argv):
     # Build MDP, Agent objects
     MDP = build_MDP(args.mdp)
     Agent = build_agent(args.algo, args.alpha, args.gamma, args.epsilon, args.learning,\
-                        action_cost={'F':1, 'R':1, 'B':args.back_cost, 'L':1})
+                        action_cost={'N':1, 'E':1, 'S':args.back_cost, 'W':1})
 
     # Determine reset points
     reset_pts = []

@@ -34,12 +34,13 @@ def help():
     print("-e       epsilon, default: 0")
     sys.exit(0)
 
+
 def cmdline_error(arg):
     if arg == 0:
         print("Unsupported maze")
     elif arg == 1:
         print("Unsupported MDP")
-    elif arg == 2: 
+    elif arg == 2:
         print("Unsupported Reinforcement Learning Algorithm")
     else:
         print("I don't even know what you did wrong. RIP.")
@@ -58,6 +59,7 @@ def path_csv(sample, trials, paths, output):
         if ".csv" not in output: output += ".csv"
         df.to_csv(output)
 
+
 def print_path_data_to_file(output, sample, paths, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon):
     dataFile = open(output+'sample' + str(sample), 'w')
     dataFile.write(datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S') + "\n")
@@ -68,6 +70,7 @@ def print_path_data_to_file(output, sample, paths, agentIn, mazeIn, mdpIn, trial
         dataFile.write("Trial: {0}\n".format(i))
         dataFile.write(str(paths[i]) + "\n\n")
     dataFile.close()
+
 
 def print_posdist_to_file(output, posDist, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon):
     dataFile = open(output, 'w')
@@ -85,6 +88,7 @@ def print_posdist_to_file(output, posDist, agentIn, mazeIn, mdpIn, trials, alpha
     dataFile.write("\n")
     dataFile.close()
 
+
 def print_posdist_to_console(posDist, agentIn, mazeIn, mdpIn, trials, alpha, gamma, epsilon):
     print(datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%Y %H:%M:%S'))
     print("Agent:" + str(agentIn) + "\t\tMaze: "+ str(mazeIn) + "\t\tTrans. Function: " + str(mdpIn) + "\t\tTrials: " + str(trials))
@@ -101,9 +105,11 @@ def print_posdist_to_console(posDist, agentIn, mazeIn, mdpIn, trials, alpha, gam
 Functions
 """
 class Counter(dict):
+
     def __getitem__(self, idx):
         self.setdefault(idx, 0)
         return dict.__getitem__(self, idx)
+
 
     def incrementAll(self, keys, count):
         """
@@ -111,6 +117,7 @@ class Counter(dict):
         """
         for key in keys:
             self[key] += count
+
 
     def argMax(self):
         """
@@ -122,6 +129,7 @@ class Counter(dict):
         maxIndex = values.index(max(values))
         return all[maxIndex][0]
 
+
     def sortedKeys(self):
         """
         Returns a list of keys sorted by their values.  Keys
@@ -132,11 +140,13 @@ class Counter(dict):
         sortedItems.sort(cmp=compare)
         return [x[0] for x in sortedItems]
 
+
     def totalCount(self):
         """
         Returns the sum of counts for all keys.
         """
         return sum(self.values())
+
 
     def normalize(self):
         """
@@ -150,6 +160,7 @@ class Counter(dict):
         for key in self.keys():
             self[key] = self[key] / total
 
+
     def divideAll(self, divisor):
         """
         Divides all counts by divisor
@@ -158,15 +169,18 @@ class Counter(dict):
         for key in self:
             self[key] /= divisor
 
+
     def copy(self):
         """
         Returns a copy of the counter
         """
         return Counter(dict.copy(self))
 
+
     def reset(self):
         for key in self:
             self[key] = 0
+
 
     def __mul__(self, y ):
         """
@@ -183,6 +197,7 @@ class Counter(dict):
             sum += x[key] * y[key]
         return sum
 
+
     def __radd__(self, y):
         """
         Adding another counter to a counter increments the current counter
@@ -190,6 +205,7 @@ class Counter(dict):
         """
         for key, value in y.items():
             self[key] += value
+
 
     def __add__( self, y ):
         """
@@ -208,6 +224,7 @@ class Counter(dict):
             addend[key] = y[key]
         return addend
 
+
     def __sub__( self, y ):
         """
         Subtracting a counter from another gives a counter with the union of all keys and
@@ -225,8 +242,9 @@ class Counter(dict):
             addend[key] = -1 * y[key]
         return addend
 
+
 def isfloat(value):
-    """ 
+    """
     If value is a real number, return that number
     else return False
     """
@@ -234,6 +252,7 @@ def isfloat(value):
         return float(value)
     except ValueError:
         return -1
+
 
 def normalize(vectorOrCounter):
     """
@@ -254,6 +273,7 @@ def normalize(vectorOrCounter):
         if s == 0: return vector
         return [el / s for el in vector]
 
+
 def nSample(distribution, values, n):
     if sum(distribution) != 1:
         distribution = normalize(distribution)
@@ -270,6 +290,7 @@ def nSample(distribution, values, n):
             cdf += distribution[distPos]
     return samples
 
+
 def sample(distribution, values = None):
     if type(distribution) == Counter:
         items = sorted(distribution.items())
@@ -284,9 +305,11 @@ def sample(distribution, values = None):
         total += distribution[i]
     return values[i]
 
+
 def sampleFromCounter(ctr):
     items = sorted(ctr.items())
     return sample([v for k,v in items], [k for k,v in items])
+
 
 def getProbability(value, distribution, values):
     """
@@ -299,12 +322,15 @@ def getProbability(value, distribution, values):
             total += prob
     return total
 
+
 def flipCoin( p ):
     r = random.random()
     return r < p
 
+
 def randomMove(lst):
     return random.choice(lst)
+
 
 def chooseFromDistribution( distribution ):
     "Takes either a counter or a list of (prob, key) pairs and samples"
@@ -316,6 +342,7 @@ def chooseFromDistribution( distribution ):
         base += prob
         if r <= base: return element
 
+
 def sign( x ):
     """
     Returns 1 or -1 depending on the sign of x
@@ -324,6 +351,7 @@ def sign( x ):
         return 1
     else:
         return -1
+
 
 def arrayInvert(array):
     """
@@ -334,6 +362,7 @@ def arrayInvert(array):
         for inner in range(len(outer)):
             result[inner].append(outer[inner])
     return result
+
 
 def matrixAsList( matrix, value = True ):
     """
@@ -361,12 +390,14 @@ def directionToAction(orientation, direction):
     if (dirIndex < oriIndex): dirIndex += 8
     diff = dirIndex - oriIndex
     return actionLst[diff]
- 
+
+
 def actionToDirection(orientation, action):
     oriIndex = cardinalDir.index(orientation)
     actIndex = actionLst.index(action)
 
     return cardinalDir[(oriIndex + actIndex)%8]
+
 
 def directionToActionLst(orientation, directions):
     lst = []
@@ -374,9 +405,15 @@ def directionToActionLst(orientation, directions):
         lst.append(directionToAction(orientation, direction))
     return lst
 
-opposite = {'N':'S', 'S':'N', 'W':'E', 'E':'W', 'F':'B', 'B':'F', 'L':'R', 'R':'L'}
+
+opposite = {'N':'S', 'S':'N', 'W':'E', 'E':'W'}
 def oppositeAction(action):
     opAct = ''
     for a in action:
         opAct += opposite[a]
     return opAct
+
+
+def is_forwards(orientation, action):
+    index = cardinalDir.index(orientation)
+    return action in [cardinalDir[(index + i)%4] for i in range(-2, 3)]

@@ -19,7 +19,7 @@ class MDP:
 		"""
 		Read in .mdp file and asve information in dictionary
 		"""
-		move = ["N", "E", "W", "S", "NE", "NW", "SE", "SW"]
+		action = ["N", "E", "W", "S", "NE", "NW", "SE", "SW"]
 		MDP = {}
 
 		infile = open("./TransFuncs/" + arg + ".mdp", "r")
@@ -33,37 +33,37 @@ class MDP:
 			for word in wordlst:
 				isfloat = util.isfloat(word[:-1])
 				if isfloat != -1:
-					MDP[first][move[i]] = isfloat
+					MDP[first][action[i]] = isfloat
 					i += 1
 		return MDP
 
 
-	def normalize(self, position, move, legalMoves):
+	def normalize(self, position, action, legal_actions):
 		"""
-		If all four moves are possible form a position, does not change
-		MDP. If some moves are illegal, adjusts MDP such that the sum
-		of all moves = 1
+		If all four actions are possible form a position, does not change
+		MDP. If some actions are illegal, adjusts MDP such that the sum
+		of all actions = 1
 		"""
 		total = 0.0
-		for act in legalMoves:
-			total += self.MDP[move][act]
+		for act in legal_actions:
+			total += self.MDP[action][act]
 
 		newMDP = {}
-		for act in legalMoves:
-			newMDP[act] = self.MDP[move][act]/total
+		for act in legal_actions:
+			newMDP[act] = self.MDP[action][act]/total
 
 		return newMDP
 
 
-	def get_MDP_move(self, position, move, legalMoves):
-		if move is 'exit': return move
+	def get_MDP_action(self, position, action, legal_actions):
+		if action is 'exit': return action
 
 		rand = random.random()
-		newMDP = self.normalize(position, move, legalMoves)
+		newMDP = self.normalize(position, action, legal_actions)
 		total = 0
 
-		for act in legalMoves:
+		for act in legal_actions:
 			total += newMDP[act]
 			if rand <= total: return act
 
-		print("get_MDP_move -- Error: no move returned")
+		print("get_MDP_action -- Error: no action returned")
