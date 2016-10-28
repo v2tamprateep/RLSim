@@ -3,32 +3,6 @@ import random
 import datetime, time
 import pandas as pd
 
-"""
-Help Message/Error Catching
-"""
-def help():
-    print("-h           help")
-    print("-m --maze    select maze")
-    print("-A --agent   select agent, default: QLearning")
-    print("-n --trials  select number of trials, default 1")
-    print("--MDP        select MDP, default: deterministic\n")
-    print("-a       alpha, learning rate, default: 0.5")
-    print("-g       gamma, discount factor, default: 0.8")
-    print("-e       epsilon, default: 0")
-    sys.exit(0)
-
-
-def cmdline_error(arg):
-    if arg == 0:
-        print("Unsupported maze")
-    elif arg == 1:
-        print("Unsupported MDP")
-    elif arg == 2:
-        print("Unsupported Reinforcement Learning Algorithm")
-    else:
-        print("I don't even know what you did wrong. RIP.")
-    sys.exit(2)
-
 
 """
 Output
