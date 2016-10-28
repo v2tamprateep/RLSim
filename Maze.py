@@ -1,5 +1,6 @@
 
 import util
+import random
 
 
 class Maze:
@@ -109,7 +110,7 @@ class Maze:
         """ Return 'discounted' maze value; reward is discounted per visit """
         if (position == "exit"): return 0
 
-        if util.flipCoin(self.reset): self.discount = 1
+        if (random.random() < self.reset): self.discount = 1
         ret = self.maze[position]/self.discount
         self.discount += 1
         return ret

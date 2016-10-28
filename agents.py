@@ -1,5 +1,4 @@
-
-import random
+from collections import Counter
 import util
 
 """
@@ -9,9 +8,8 @@ class RLAgent(object):
 
     def __init__(self, Maze, action_cost):
         self.Maze = Maze
-        # self.MDP = MDP
         self.action_cost = action_cost
-        self.posCounter = util.Counter()
+        self.posCounter = Counter()
         self.prev_state = None
         self.prev_action = None
 
@@ -48,10 +46,8 @@ class RLAgent(object):
 
         # if 'backwards' action, flip orientation
         if (util.is_forwards(self.orientation, action)):
-            print("forwards: {0}, {1}".format(self.orientation, action))
             self.orientation = action
         else:
-            print("backwards: {0}, {1}".format(self.orientation, action))
             self.orientation = util.oppositeAction(action)
 
         self.Maze.exploreVal[self.position] = 0
@@ -67,7 +63,7 @@ class RLAgent(object):
 
 
     def reset_Qvalues(self):
-        self.qValues.reset()
+        self.qValues = Counter()
 
 
     def get_action(self):
@@ -88,7 +84,7 @@ class QLearningAgent(RLAgent):
         self.alpha = alpha
         self.gamma = gamma
         self.epsilon = epsilon
-        self.qValues = util.Counter()
+        self.qValues = Counter()
         self.learning_mode = learning
 
 
@@ -107,15 +103,15 @@ class QLearningAgent(RLAgent):
         Compute epsilon greedy move
         """
         moves = self.Maze.get_legal_dirs(self.position)
-        if util.flipCoin(self.epsilon):
-            return util.randomMove(moves)
+        if (util.rand_bool(self.epsilon)):
+            return util.rand_choice(actions)
 
         # get mapping from move to value
         lst = [(self.qValues[(self.position, move)], move) for move in moves]
         best = max(lst)[0]
 
         tiedMoves = [move for val, move in lst if val == best]
-        maxQMove = util.randomMove(tiedMoves)
+        maxQMove = util.rand_choice(tiedMoves)
         return maxQMove
 
 
@@ -171,14 +167,14 @@ class SarsaAgent(QLearningAgent):
         first move by sarsa agent; selects a mvoe but doesn't update
         """
         actions = self.Maze.get_legal_dirs(self.position)
-        if util.flipCoin(self.epsilon):
-            return util.randomMove(actions)
+        if (util.rand_bool(self.epsilon)):
+            return util.rand_choice(actions)
 
         lst = [(self.qValues[(self.position, action)], action) for action in actions]
         best = max(lst)[0]
 
         tiedMoves = [move for val, move in lst if val == best]
-        maxQMove = util.randomMove(tiedMoves)
+        maxQMove = util.rand_choice(tiedMoves)
         return maxQMove
 
 
