@@ -382,31 +382,8 @@ Action: Forwards, Left, Right, Backwards
 """
 cardinalDir = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
 actionLst = ['F', 'FR', 'R', 'BR', 'B', 'BL', 'L', 'FL']
-
-def directionToAction(orientation, direction):
-    oriIndex = cardinalDir.index(orientation)
-    dirIndex = cardinalDir.index(direction)
-
-    if (dirIndex < oriIndex): dirIndex += 8
-    diff = dirIndex - oriIndex
-    return actionLst[diff]
-
-
-def actionToDirection(orientation, action):
-    oriIndex = cardinalDir.index(orientation)
-    actIndex = actionLst.index(action)
-
-    return cardinalDir[(oriIndex + actIndex)%8]
-
-
-def directionToActionLst(orientation, directions):
-    lst = []
-    for direction in directions:
-        lst.append(directionToAction(orientation, direction))
-    return lst
-
-
 opposite = {'N':'S', 'S':'N', 'W':'E', 'E':'W'}
+
 def oppositeAction(action):
     opAct = ''
     for a in action:
@@ -416,4 +393,4 @@ def oppositeAction(action):
 
 def is_forwards(orientation, action):
     index = cardinalDir.index(orientation)
-    return action in [cardinalDir[(index + i)%4] for i in range(-2, 3)]
+    return action in [cardinalDir[(index + i)%8] for i in range(-2, 3)]

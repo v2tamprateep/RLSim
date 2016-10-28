@@ -12,6 +12,8 @@ class RLAgent(object):
         # self.MDP = MDP
         self.action_cost = action_cost
         self.posCounter = util.Counter()
+        self.prev_state = None
+        self.prev_action = None
 
 
     def change_maze(self, maze):
@@ -30,6 +32,7 @@ class RLAgent(object):
         self.position = self.Maze.start[0]
         self.orientation = self.Maze.start[1]
         self.posCounter[self.position] += 1
+        self.prev_state, self.prev_action = None, None
 
         for state in self.Maze.exploreVal.keys():
             self.Maze.exploreVal[state] += 1
@@ -39,12 +42,16 @@ class RLAgent(object):
         """
         Update agent's orientation and state, given an action
         """
+        self.prev_state = self.position
+        self.prev_action = action
         self.position = next_state
 
         # if 'backwards' action, flip orientation
         if (util.is_forwards(self.orientation, action)):
+            print("forwards: {0}, {1}".format(self.orientation, action))
             self.orientation = action
         else:
+            print("backwards: {0}, {1}".format(self.orientation, action))
             self.orientation = util.oppositeAction(action)
 
         self.Maze.exploreVal[self.position] = 0
@@ -152,7 +159,6 @@ class SarsaAgent(QLearningAgent):
 
     def __init__(self, Maze, alpha, gamma, epsilon, action_cost, learning):
         super(SarsaAgent, self).__init__(Maze, alpha, gamma, epsilon, action_cost, learning)
-        self.prev_state, self.prev_action, self.prev_dir = None, None, None
 
 
     def finished_maze(self):
@@ -161,8 +167,8 @@ class SarsaAgent(QLearningAgent):
         we also need to reset the previous state
         """
         if self.Maze.is_terminal(self.position):
-            self.update_Qvalues(self.prev_state, self.prev_dir, self.position, "exit")
-            self.prev_state, self.prev_action, self.prev_dir = None, None, None
+            self.update_Qvalues(self.prev_state, self.prev_action, self.position, "exit")
+            self.prev_state, self.prev_action = None, None
             return True
         return False
 
@@ -171,29 +177,39 @@ class SarsaAgent(QLearningAgent):
         """
         first move by sarsa agent; selects a mvoe but doesn't update
         """
-        moves = self.Maze.get_legal_actions(self.position, self.orientation)
-        if util.flipCoin(self.epsilon): moves = [util.randomMove(moves)]
+        actions = self.Maze.get_legal_dirs(self.position)
+        if util.flipCoin(self.epsilon):
+            return util.randomMove(actions)
 
-        lst = [(self.qValues[(self.position, util.actionToDirection(self.orientation, move))], move) for move in moves]
+        lst = [(self.qValues[(self.position, action)], action) for action in actions]
         best = max(lst)[0]
 
         tiedMoves = [move for val, move in lst if val == best]
         maxQMove = util.randomMove(tiedMoves)
         # mdpMove = self.MDP.get_MDP_move(self.position, maxQMove, moves)
 
-        direction = util.actionToDirection(self.orientation, mdpMove)
+        # direction = util.actionToDirection(self.orientation, mdpMove)
         # update Q-values
-        if self.prev_state is not None and self.prev_dir is not None:
-            self.update_Qvalues(self.prev_state, self.prev_dir, self.position, direction)
+        # if self.prev_state is not None and self.prev_dir is not None:
+        #     self.update_Qvalues(self.prev_state, self.prev_dir, self.position, direction)
 
         # update "previous" moves
-        self.prev_state = self.position
-        self.prev_dir = util.actionToDirection(self.orientation, maxQMove)
-        self.prev_action = maxQMove
+        # self.prev_state = self.position
+        # self.prev_dir = util.actionToDirection(self.orientation, maxQMove)
+        # self.prev_action = maxQMove
 
         # update agent state
-        self.update_agent_state(maxQMove)
+        # self.update_agent_state(maxQMove)
         return maxQMove
+
+
+    def take_action(self, action):
+        new_state, taken_action = self.Maze.take_action(self.position, action)
+
+        if self.prev_state is not None and self.prev_action is not None:
+            self.update_Qvalues(self.prev_state, self.prev_action, new_state, taken_action)
+
+        self.update_agent_state(new_state, taken_action)
 
 
     def update_Qvalues(self, s1, d1, s2, d2):
