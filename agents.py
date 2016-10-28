@@ -116,12 +116,6 @@ class QLearningAgent(RLAgent):
 
         tiedMoves = [move for val, move in lst if val == best]
         maxQMove = util.randomMove(tiedMoves)
-        # mdpMove = self.MDP.get_MDP_move(self.position, maxQMove, moves)
-
-        # direction = util.actionToDirection(self.orientation, maxQMove)
-
-        # self.update_Qvalues(maxQMove)
-        # self.update_agent_state(maxQMove)
         return maxQMove
 
 
@@ -136,7 +130,6 @@ class QLearningAgent(RLAgent):
         """
         Update Qvalues based on learning_mode
         """
-        # nextPos = self.next_position(self.position, action, self.orientation)
         currVal = self.qValues[(self.position, action)]
         nextVal = self.get_value(nextPos)
 
@@ -186,20 +179,6 @@ class SarsaAgent(QLearningAgent):
 
         tiedMoves = [move for val, move in lst if val == best]
         maxQMove = util.randomMove(tiedMoves)
-        # mdpMove = self.MDP.get_MDP_move(self.position, maxQMove, moves)
-
-        # direction = util.actionToDirection(self.orientation, mdpMove)
-        # update Q-values
-        # if self.prev_state is not None and self.prev_dir is not None:
-        #     self.update_Qvalues(self.prev_state, self.prev_dir, self.position, direction)
-
-        # update "previous" moves
-        # self.prev_state = self.position
-        # self.prev_dir = util.actionToDirection(self.orientation, maxQMove)
-        # self.prev_action = maxQMove
-
-        # update agent state
-        # self.update_agent_state(maxQMove)
         return maxQMove
 
 
