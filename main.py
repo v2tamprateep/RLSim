@@ -1,22 +1,23 @@
 import sys
 import argparse
 import Maze
-import agents
+import Agents
 import MDP
 import util
 import os.path
 import collections
 
 
+# from research data
 tri  = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 89, 97, 100, 103, 106]
 trap = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 91, 97, 103, 106]
 
 
 def build_agent(agent, alpha, gamma, epsilon, learning, action_cost, maze=None):
     if agent.lower() == 'qlearning':
-        return agents.QLearningAgent(maze, alpha, gamma, epsilon, action_cost, learning)
+        return Agents.QLearningAgent(maze, alpha, gamma, epsilon, action_cost, learning)
     elif 'sarsa' in agent.lower():
-        return agents.SarsaAgent(maze, alpha, gamma, epsilon, action_cost, learning)
+        return Agents.SarsaAgent(maze, alpha, gamma, epsilon, action_cost, learning)
     else:
         util.cmdline_error(2)
 
@@ -71,13 +72,13 @@ def main(argv):
     Agent = build_agent(args.algo, args.alpha, args.gamma, args.epsilon, args.learning,\
                         action_cost={'N':1, 'E':1, 'S':args.back_cost, 'W':1})
 
-    # Determine reset points
+    # Determine reset points (episodes where the Q-values are reset)
     reset_pts = []
     if args.Qreset == 'tri': reset_pts = tri
     elif args.Qreset == 'trap': reset_pts = trap
-    elif args.Qreset.isdigit(): reset_pts = range(0, args.trials-1, int(args.Qreset))
+    elif args.Qreset.isdigit(): reset_pts = range(0, args.trials - 1, int(args.Qreset))
 
-    # Run agent through maze for n trials
+    # Run agent through maze for s samples of n trials
     current_trial = 0
     for s in range(args.samples):
         paths = []
@@ -95,6 +96,7 @@ def main(argv):
         if args.output is not None:
             util.path_csv(s, args.trials, paths, args.output)
 
+        # reset learning for each sample
         Agent.reset_Qvalues()
 
 if __name__ == "__main__":

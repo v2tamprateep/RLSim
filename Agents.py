@@ -1,6 +1,7 @@
 from collections import Counter
 import util
 
+
 """
 Parent Agent class
 """
@@ -45,7 +46,7 @@ class RLAgent(object):
         self.position = next_state
 
         # if 'backwards' action, flip orientation
-        if (util.is_forwards(self.orientation, action)):
+        if util.is_forwards(self.orientation, action):
             self.orientation = action
         else:
             self.orientation = util.oppositeAction(action)
@@ -103,7 +104,7 @@ class QLearningAgent(RLAgent):
         Compute epsilon greedy move
         """
         moves = self.Maze.get_legal_dirs(self.position)
-        if (util.rand_bool(self.epsilon)):
+        if util.rand_bool(self.epsilon):
             return util.rand_choice(actions)
 
         # get mapping from move to value
@@ -167,7 +168,7 @@ class SarsaAgent(QLearningAgent):
         first move by sarsa agent; selects a mvoe but doesn't update
         """
         actions = self.Maze.get_legal_dirs(self.position)
-        if (util.rand_bool(self.epsilon)):
+        if util.rand_bool(self.epsilon):
             return util.rand_choice(actions)
 
         lst = [(self.qValues[(self.position, action)], action) for action in actions]
@@ -187,16 +188,16 @@ class SarsaAgent(QLearningAgent):
         self.update_agent_state(new_state, taken_action)
 
 
-    def update_Qvalues(self, s1, d1, s2, d2):
+    def update_Qvalues(self, s1, a1, s2, a2):
         """
         Update Qvalues based on learning_mode
         """
-        currVal = self.qValues[(s1, d1)]
+        currVal = self.qValues[(s1, a1)]
 
-        if d2 == "exit":
+        if (a2 == "exit"):
             nextVal = 0
         else:
-            nextVal = self.qValues[(s2, d2)]
+            nextVal = self.qValues[(s2, a2)]
 
         if self.learning_mode == 1:
             reward = self.Maze.get_value(s2) + self.get_action_cost(self.prev_action)
@@ -206,4 +207,5 @@ class SarsaAgent(QLearningAgent):
             reward = self.Maze.get_value(s2) + self.get_action_cost(self.prev_action) + self.Maze.get_exploration_bonus(s2)
         elif self.learning_mode == 4:
             reward = self.Maze.get_discount_value(s2) + self.get_action_cost(self.prev_action) + self.Maze.get_exploration_bonus(s2)
+
         self.qValues[(s1, d1)] = currVal + self.alpha*(reward + nextVal - currVal)
