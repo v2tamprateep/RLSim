@@ -42,8 +42,8 @@ class Maze:
                 # determine initial orientation
                 dirSymbols = ['^', '>', 'v', '<']
                 if str(char) in dirSymbols:
-                    directions = ['N', 'E', 'S', 'W']
-                    start = ((x, y), directions[dirSymbols.index(str(char))])
+                    actions = ['N', 'E', 'S', 'W']
+                    start = ((x, y), actions[dirSymbols.index(str(char))])
 
                 if (str(char).isalpha()):
                     cues[(x, y)] = 2
@@ -63,27 +63,27 @@ class Maze:
         """
         returns list of possible actions (forward, backwards, left, right)
         """
-        directions = self.get_legal_dirs(position)
-        return util.directionToActionLst(orientation, directions)
+        actions = self.get_legal_dirs(position)
+        return util.directionToActionLst(orientation, actions)
 
 
     def get_legal_dirs(self, position):
         """
-        returns list of possible DIRECTIONS to move in (N, E, W, S)
+        returns list of possible actions to move in (N, E, W, S)
         """
-        directions = []
+        actions = []
         x, y = position[0], position[1]
 
-        if self.maze[(x, y + 1)] is not '%': directions.append('N')
-        if self.maze[(x + 1, y)] is not '%': directions.append('E')
-        if self.maze[(x - 1, y)] is not '%': directions.append('W')
-        if self.maze[(x, y - 1)] is not '%': directions.append('S')
-        if self.maze[(x - 1, y + 1)] is not '%': directions.append('NW')
-        if self.maze[(x - 1, y - 1)] is not '%': directions.append('SW')
-        if self.maze[(x + 1, y + 1)] is not '%': directions.append('NE')
-        if self.maze[(x + 1, y - 1)] is not '%': directions.append('SE')
+        if self.maze[(x, y + 1)] is not '%': actions.append('N')
+        if self.maze[(x + 1, y)] is not '%': actions.append('E')
+        if self.maze[(x - 1, y)] is not '%': actions.append('W')
+        if self.maze[(x, y - 1)] is not '%': actions.append('S')
+        if self.maze[(x - 1, y + 1)] is not '%': actions.append('NW')
+        if self.maze[(x - 1, y - 1)] is not '%': actions.append('SW')
+        if self.maze[(x + 1, y + 1)] is not '%': actions.append('NE')
+        if self.maze[(x + 1, y - 1)] is not '%': actions.append('SE')
 
-        return directions
+        return actions
 
 
     def next_state(self, position, action):

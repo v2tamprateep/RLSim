@@ -8,16 +8,11 @@ import os.path
 import collections
 
 
-# from research data
-tri  = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 89, 97, 100, 103, 106]
-trap = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 91, 97, 103, 106]
-
-
 def build_agent(agent, alpha, gamma, epsilon, learning, action_cost, maze=None):
     if agent.lower() == 'qlearning':
-        return Agents.GreedyQLAgent(maze, alpha, gamma, epsilon, action_cost, learning)
+        return Agents.EpsilonSoftQLearningAgent(maze, alpha, gamma, epsilon, action_cost, learning)
     elif 'sarsa' in agent.lower():
-        return Agents.GreedySarsaAgent(maze, alpha, gamma, epsilon, action_cost, learning)
+        return Agents.EpsilonSoftSarsaAgent(maze, alpha, gamma, epsilon, action_cost, learning)
     else:
         util.cmdline_error(2)
 
@@ -39,7 +34,7 @@ def build_MDP(mdpIn):
 
 def play_maze(agent):
     path = []
-    agent.reset_agent()
+    agent.reset_agent_state()
     while not agent.finished_maze():
         pos = agent.position
         action = agent.get_action()
@@ -51,9 +46,6 @@ def play_maze(agent):
 def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("--algo", help="name of reinforcement algorithm", required=True)
-    parser.add_argument("--mazes", help="name of maze (layout file without extension)", nargs="*", required=True)
-    parser.add_argument("-t", "--trials", help="number of trials", nargs="*", type=int, required=True)
-    parser.add_argument("-s", "--samples", help="number of samples", default=30, type=int)
     parser.add_argument("--mdp", help="transition file without extension", default="deterministic", type=str)
     parser.add_argument("-a", "--alpha", help="value of learning rate",default=0.5, type=float)
     parser.add_argument("-g", "--gamma", help="value of discount", default=0.8, type=float)

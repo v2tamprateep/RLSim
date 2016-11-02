@@ -1,18 +1,21 @@
 from collections import Counter
+import numpy as np
 import util
 
 
 """
-Parent Agent class
+Model-Free Agent class
 """
 class RLAgent(object):
 
-    def __init__(self, Maze, action_cost):
+    def __init__(self, Maze, alpha, gamma, epsilon, action_cost, learning):
         self.Maze = Maze
         self.action_cost = action_cost
-        self.posCounter = Counter()
-        self.prev_state = None
-        self.prev_action = None
+        self.posCounter, self.qValues = Counter(), Counter()
+        # self.prev_state = None
+        # self.prev_action = None
+        self.alpha, self.gamma, self.epsilon = alpha, gamma, epsilon
+        self.learning_mode = learning
 
 
     def change_maze(self, maze):
@@ -24,14 +27,13 @@ class RLAgent(object):
         self.orientation = maze.start[1]
 
 
-    def reset_agent_state(self):
+    def reset_agent(self):
         """
         Reset Agent's state to start state
         """
         self.position = self.Maze.start[0]
         self.orientation = self.Maze.start[1]
         self.posCounter[self.position] += 1
-        self.prev_state, self.prev_action = None, None
 
         for state in self.Maze.exploreVal.keys():
             self.Maze.exploreVal[state] += 1
@@ -41,8 +43,6 @@ class RLAgent(object):
         """
         Update agent's orientation and state, given an action
         """
-        self.prev_state = self.position
-        self.prev_action = action
         self.position = next_state
 
         # if 'backwards' action, flip orientation
@@ -67,28 +67,6 @@ class RLAgent(object):
         self.qValues = Counter()
 
 
-    def get_action(self):
-        pass
-
-
-    def take_action(self, action):
-        pass
-
-
-"""
-Q-Learning
-"""
-class QLearningAgent(RLAgent):
-
-    def __init__(self, Maze, alpha, gamma, epsilon, action_cost, learning):
-        super(QLearningAgent, self).__init__(Maze, action_cost)
-        self.alpha = alpha
-        self.gamma = gamma
-        self.epsilon = epsilon
-        self.qValues = Counter()
-        self.learning_mode = learning
-
-
     def get_value(self, state):
         """
         Returns max_action Q(state,action)
@@ -99,22 +77,22 @@ class QLearningAgent(RLAgent):
         return max(lst)
 
 
+    def take_action(self, action):
+        pass
+
+
     def get_action(self):
-        """
-        Compute epsilon greedy move
-        """
-        moves = self.Maze.get_legal_dirs(self.position)
-        if util.rand_bool(self.epsilon):
-            return util.rand_choice(actions)
+        pass
 
-        # get mapping from move to value
-        lst = [(self.qValues[(self.position, move)], move) for move in moves]
-        best = max(lst)[0]
 
-        tiedMoves = [move for val, move in lst if val == best]
-        maxQMove = util.rand_choice(tiedMoves)
-        return maxQMove
+    def update_Qvalues(self):
+        pass
 
+
+"""
+Q-Learning Agent
+"""
+class QLAgent(RLAgent):
 
     def take_action(self, action):
         new_state, taken_action = self.Maze.take_action(self.position, action)
@@ -135,55 +113,46 @@ class QLearningAgent(RLAgent):
         elif self.learning_mode == 2: # RD
             reward = self.Maze.get_discount_value(nextPos) + self.get_action_cost(action)
         elif self.learning_mode == 3: # ER
-            reward = self.Maze.get_value(nextPos) + self.get_action_cost(action) + self.Maze.get_exploration_bonus(nextPos)
+            reward = self.Maze.get_value(nextPos) + self.get_action_cost(action) + \
+                    self.Maze.get_exploration_bonus(nextPos)
         elif self.learning_mode == 4: # RDER
-            reward = self.Maze.get_discount_value(nextPos) + self.get_action_cost(action) + self.Maze.get_exploration_bonus(nextPos)
+            reward = self.Maze.get_discount_value(nextPos) + self.get_action_cost(action) + \
+                    self.Maze.get_exploration_bonus(nextPos)
 
         self.qValues[(self.position, action)] = currVal + self.alpha*(reward + nextVal - currVal)
 
 
 """
-SARSA
+SARSA Agent
 """
-class SarsaAgent(QLearningAgent):
+class SarsaAgent(RLAgent):
 
     def __init__(self, Maze, alpha, gamma, epsilon, action_cost, learning):
         super(SarsaAgent, self).__init__(Maze, alpha, gamma, epsilon, action_cost, learning)
+        self.prev_state, self.prev_action = None, None
 
 
-    def finished_maze(self):
-        """
-        We need to overload finished_maze function to update the Q-value of the state leading to the terminal state;
-        we also need to reset the previous state
-        """
-        if self.Maze.is_terminal(self.position):
-            self.update_Qvalues(self.prev_state, self.prev_action, self.position, "exit")
-            self.prev_state, self.prev_action = None, None
-            return True
-        return False
+    def reset_agent(self):
+        super(SarsaAgent, self).reset_agent()
+        self.prev_state, self.prev_action = None, None
 
 
-    def get_action(self):
-        """
-        first move by sarsa agent; selects a mvoe but doesn't update
-        """
-        actions = self.Maze.get_legal_dirs(self.position)
-        if util.rand_bool(self.epsilon):
-            return util.rand_choice(actions)
-
-        lst = [(self.qValues[(self.position, action)], action) for action in actions]
-        best = max(lst)[0]
-
-        tiedMoves = [move for val, move in lst if val == best]
-        maxQMove = util.rand_choice(tiedMoves)
-        return maxQMove
+    def update_agent_state(self, next_state, action):
+        self.prev_state = self.position
+        self.prev_action = action
+        super(SarsaAgent, self).update_agent_state()
 
 
     def take_action(self, action):
         new_state, taken_action = self.Maze.take_action(self.position, action)
 
+        # we don't update until the second move
         if self.prev_state is not None and self.prev_action is not None:
             self.update_Qvalues(self.prev_state, self.prev_action, new_state, taken_action)
+
+        # if we finish the maze, update Q-values assuming next action is "exit"
+        if self.Maze.is_terminal(new_state):
+            self.update_Qvalues(self.prev_state, self.prev_action, self.position, "exit")
 
         self.update_agent_state(new_state, taken_action)
 
@@ -204,8 +173,98 @@ class SarsaAgent(QLearningAgent):
         elif self.learning_mode == 2:
             reward = self.Maze.get_discount_value(s2) + self.get_action_cost(self.prev_action)
         elif self.learning_mode == 3:
-            reward = self.Maze.get_value(s2) + self.get_action_cost(self.prev_action) + self.Maze.get_exploration_bonus(s2)
+            reward = self.Maze.get_value(s2) + self.get_action_cost(self.prev_action) + \
+                    self.Maze.get_exploration_bonus(s2)
         elif self.learning_mode == 4:
-            reward = self.Maze.get_discount_value(s2) + self.get_action_cost(self.prev_action) + self.Maze.get_exploration_bonus(s2)
+            reward = self.Maze.get_discount_value(s2) + self.get_action_cost(self.prev_action) +\
+                    self.Maze.get_exploration_bonus(s2)
 
         self.qValues[(s1, d1)] = currVal + self.alpha*(reward + nextVal - currVal)
+
+"""
+Epsilon Greedy Agent
+"""
+class EpsilonGreedyAgent(RLAgent):
+
+    def get_probability(self, action):
+        legal_actions = self.Maze.get_legal_dirs(self.position)
+        lst = [(self.qValues[(self.position, action)], action) for action in legal_actions]
+        best_action = max(lst)[0]
+
+        if action == best_action:
+            return 1 - self.epsilon + self.epsilon/len(legal_actions)
+        else:
+            return self.epsilon/len(legal_actions)
+
+
+    def get_action(self):
+        """
+        Compute epsilon greedy move
+        """
+        legal_actions = self.Maze.get_legal_dirs(self.position)
+        if util.rand_bool(self.epsilon):
+            return util.rand_choice(legal_actions)
+
+        # get mapping from move to value
+        lst = [(self.qValues[(self.position, action)], action) for action in legal_actions]
+        best = max(lst)[0]
+
+        tiedMoves = [move for val, move in lst if val == best]
+        return util.rand_choice(tiedMoves)
+
+
+"""
+Epsilon Soft Agent (Boltzmann Distribution)
+"""
+class EpsilonSoftAgent(RLAgent):
+
+    def softmax(self, lst):
+        """Compute softmax values for each sets of scores in lst"""
+        return np.exp(lst) / np.sum(np.exp(lst), axis=0)
+
+
+    def get_probability(self, action):
+        legal_actions = self.Maze.get_legal_dirs(self.position)
+        boltz_values = self.softmax([self.qvalues[(self.pos, a)] for a in legal_actions])
+        return boltz_values[legal_actions.index(action)]
+
+
+    def get_action(self):
+        legal_actions = self.Maze.get_legal_dirs(self.position)
+        if util.rand_bool(self.epsilon):
+            return util.rand_choice(legal_actions)
+
+        boltz_values = self.softmax([self.qvalues[(self.pos, a)] for a in legal_actions])
+        return np.random.choice(legal_actions, p=boltz_values)
+
+
+"""
+Epsilon Greedy Q-Learning
+"""
+class GreedyQLAgent(QLAgent, EpsilonGreedyAgent):
+
+    pass
+
+
+"""
+Epsilon Soft Q-learning
+"""
+class SoftQLAgent(QLAgent, EpsilonSoftAgent):
+
+    pass
+
+
+"""
+Epsilon Greedy SARSA
+"""
+class GreedySarsaAgent(SarsaAgent, EpsilonGreedyAgent):
+
+    pass
+
+
+"""
+Epsilon Soft SARSA
+"""
+class EpsilonSoftSarsaAgent(SarsaAgent, EpsilonSoftAgent):
+
+    pass
