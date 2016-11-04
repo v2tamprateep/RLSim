@@ -24,13 +24,6 @@ class RLAgent(object):
         self.position = maze.start[0]
         self.orientation = maze.start[1]
 
-    def fix_start(self, start, ori):
-        """
-        initialize agent without maze
-        """
-        self.position = start
-        self.orientation = ori
-
     def reset_agent(self):
         """
         Reset Agent's state to start state

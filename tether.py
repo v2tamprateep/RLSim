@@ -9,7 +9,7 @@ import pandas as pd
 def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("--algo", help="name of reinforcement algorithm", required=True)
-    parser.add_argument("--mazes", help="maze config file", required=True)
+    # parser.add_argument("--mazes", help="maze config file", required=True)
     parser.add_argument("--mdp", help="transition file without extension", default="deterministic", type=str)
     parser.add_argument("-a", "--alpha", help="value of learning rate",default=0.5, type=float)
     parser.add_argument("-g", "--gamma", help="value of discount", default=0.8, type=float)
@@ -23,9 +23,6 @@ def main(argv):
     parser.add_argument("-o", "--output", help="path to output file with extension", default=None)
     args = parser.parse_args(argv)
 
-    # get mazes and trials
-    mazes, episodes = su.read_config(args.mazes)
-
     # Build MDP, Agent objects
     MDP = su.build_MDP(args.mdp)
     Agent = su.build_agent(args.algo, args.alpha, args.gamma, args.epsilon, args.learning,\
@@ -33,11 +30,16 @@ def main(argv):
 
     input_file = pd.read_csv(args.input)
     paths = input_file["paths"]
+    mazes = input_file["mazes"]
     probabilities = list()
 
     # loop through episodes/paths
-
-    for path in paths:
+    current_maze = None
+    for maze, path in zip(mazes, paths):
+        if maze != current_maze:
+            new_maze = su.build_maze(maze, MDP, args.reward, args.reset, args.deadend_cost)
+            Agent.change_maze(new_maze)
+            
         probabilities.append(su.tether(path, Agent))
 
     # write to .csv file

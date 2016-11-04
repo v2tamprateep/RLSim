@@ -87,19 +87,14 @@ def tether(actions, follower):
     simulate one episode through the maze, taking the actions given
     actions: list of actions in one episode
     """
+    # print(actions)
     state_actions = string_to_list(actions)
+    print(state_actions)
     probabilities = list()
 
-    follower.position = state_actions[0][0]
-    for i in range(len(state_actions)):
-        state, action = state_actions[i]
+    for state, action in state_actions:
+        probabilities.append(follower.get_probability(action))
         follower.take_action(action)
-
-        if i < len(state_actions) - 1:
-            # if there is a next move in the episode, find probabilities of
-            # next move
-            next_action = state_actions[i + 1][1]
-            probabilities.append(follower.get_probability(next_action))
 
     # return average probability of taking actions in episode
     return sum(probabilities)/len(probabilities)
@@ -115,12 +110,12 @@ def string_to_list(s):
     # remove punctuation
     table = string.maketrans("","")
     s = s.translate(table, string.punctuation)
-
+    
     # group into action-lst
     state_action_lst = []
     lst = s.split()
     i = 0
-    while 3*i < len(lst):
+    while i < len(lst):
         state = (int(lst[i]), int(lst[i + 1]))
         action = lst[i + 2]
         state_action_lst.append((state, action))
@@ -134,15 +129,15 @@ Input
 """
 def read_config(config):
     f = open(config)
-    mazes, trials = list(), list()
+    mazes, episodes = list(), list()
 
     for line in f:
-        # formatted "maze: trials"
+        # formatted "maze: num_episodes"
         content = line.split(": ")
         mazes.append(content[0])
-        trials.append(int(content[1]))
+        episodes.append(int(content[1]))
 
-    return mazes, trials
+    return mazes, episodes
 
 
 """
