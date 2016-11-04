@@ -1,7 +1,6 @@
-
 import sys
 import random
-import util
+import utilities
 
 
 class MDP:
@@ -31,7 +30,7 @@ class MDP:
 			first = wordlst[0][:-1]
 			MDP[first] = {}
 			for word in wordlst:
-				isfloat = util.isfloat(word[:-1])
+				isfloat = utilities.isfloat(word[:-1])
 				if isfloat != -1:
 					MDP[first][action[i]] = isfloat
 					i += 1

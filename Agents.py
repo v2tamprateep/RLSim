@@ -1,6 +1,6 @@
 from collections import Counter
 import numpy as np
-import util
+import utilities
 
 
 """
@@ -12,11 +12,9 @@ class RLAgent(object):
         self.Maze = Maze
         self.action_cost = action_cost
         self.posCounter, self.qValues = Counter(), Counter()
-        # self.prev_state = None
-        # self.prev_action = None
         self.alpha, self.gamma, self.epsilon = alpha, gamma, epsilon
         self.learning_mode = learning
-
+        self.position, self.orientation = None, None
 
     def change_maze(self, maze):
         """
@@ -26,6 +24,12 @@ class RLAgent(object):
         self.position = maze.start[0]
         self.orientation = maze.start[1]
 
+    def fix_start(self, start, ori):
+        """
+        initialize agent without maze
+        """
+        self.position = start
+        self.orientation = ori
 
     def reset_agent(self):
         """
@@ -37,7 +41,7 @@ class RLAgent(object):
 
         for state in self.Maze.exploreVal.keys():
             self.Maze.exploreVal[state] += 1
-
+            
 
     def update_agent_state(self, next_state, action):
         """
@@ -46,26 +50,23 @@ class RLAgent(object):
         self.position = next_state
 
         # if 'backwards' action, flip orientation
-        if util.is_forwards(self.orientation, action):
+        if utilities.is_forwards(self.orientation, action):
             self.orientation = action
         else:
-            self.orientation = util.oppositeAction(action)
+            self.orientation = utilities.oppositeAction(action)
 
         self.Maze.exploreVal[self.position] = 0
         self.posCounter[self.position] += 1
 
 
-    def get_action_cost(self, action):
-        return -max(self.action_cost[a] for a in action)
-
-
     def finished_maze(self):
         return self.Maze.is_terminal(self.position)
-
 
     def reset_Qvalues(self):
         self.qValues = Counter()
 
+    def get_action_cost(self, action):
+        return -max(self.action_cost[a] for a in action)
 
     def get_value(self, state):
         """
@@ -76,14 +77,11 @@ class RLAgent(object):
         lst = [self.qValues[(state, act)] for act in legalActions]
         return max(lst)
 
-
     def take_action(self, action):
         pass
 
-
     def get_action(self):
         pass
-
 
     def update_Qvalues(self):
         pass
@@ -96,10 +94,8 @@ class QLAgent(RLAgent):
 
     def take_action(self, action):
         new_state, taken_action = self.Maze.take_action(self.position, action)
-
         self.update_Qvalues(taken_action, new_state)
         self.update_agent_state(new_state, taken_action)
-
 
     def update_Qvalues(self, action, nextPos):
         """
@@ -131,17 +127,14 @@ class SarsaAgent(RLAgent):
         super(SarsaAgent, self).__init__(Maze, alpha, gamma, epsilon, action_cost, learning)
         self.prev_state, self.prev_action = None, None
 
-
     def reset_agent(self):
         super(SarsaAgent, self).reset_agent()
         self.prev_state, self.prev_action = None, None
-
 
     def update_agent_state(self, next_state, action):
         self.prev_state = self.position
         self.prev_action = action
         super(SarsaAgent, self).update_agent_state()
-
 
     def take_action(self, action):
         new_state, taken_action = self.Maze.take_action(self.position, action)
@@ -176,10 +169,11 @@ class SarsaAgent(RLAgent):
             reward = self.Maze.get_value(s2) + self.get_action_cost(self.prev_action) + \
                     self.Maze.get_exploration_bonus(s2)
         elif self.learning_mode == 4:
-            reward = self.Maze.get_discount_value(s2) + self.get_action_cost(self.prev_action) +\
+            reward = self.Maze.get_discount_value(s2) + self.get_action_cost(self.prev_action) + \
                     self.Maze.get_exploration_bonus(s2)
 
         self.qValues[(s1, d1)] = currVal + self.alpha*(reward + nextVal - currVal)
+
 
 """
 Epsilon Greedy Agent
@@ -202,15 +196,15 @@ class EpsilonGreedyAgent(RLAgent):
         Compute epsilon greedy move
         """
         legal_actions = self.Maze.get_legal_dirs(self.position)
-        if util.rand_bool(self.epsilon):
-            return util.rand_choice(legal_actions)
+        if utilities.rand_bool(self.epsilon):
+            return utilities.rand_choice(legal_actions)
 
         # get mapping from move to value
         lst = [(self.qValues[(self.position, action)], action) for action in legal_actions]
         best = max(lst)[0]
 
         tiedMoves = [move for val, move in lst if val == best]
-        return util.rand_choice(tiedMoves)
+        return utilities.rand_choice(tiedMoves)
 
 
 """
@@ -222,19 +216,17 @@ class EpsilonSoftAgent(RLAgent):
         """Compute softmax values for each sets of scores in lst"""
         return np.exp(lst) / np.sum(np.exp(lst), axis=0)
 
-
     def get_probability(self, action):
         legal_actions = self.Maze.get_legal_dirs(self.position)
         boltz_values = self.softmax([self.qvalues[(self.pos, a)] for a in legal_actions])
         return boltz_values[legal_actions.index(action)]
 
-
     def get_action(self):
         legal_actions = self.Maze.get_legal_dirs(self.position)
-        if util.rand_bool(self.epsilon):
-            return util.rand_choice(legal_actions)
+        if utilities.rand_bool(self.epsilon):
+            return utilities.rand_choice(legal_actions)
 
-        boltz_values = self.softmax([self.qvalues[(self.pos, a)] for a in legal_actions])
+        boltz_values = self.softmax([self.qValues[(self.position, a)] for a in legal_actions])
         return np.random.choice(legal_actions, p=boltz_values)
 
 

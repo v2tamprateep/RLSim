@@ -1,9 +1,11 @@
-
-import util
+import utilities
 import random
 
 
-class Maze:
+"""
+Maze Object; used as Agent's environment
+"""
+class Maze(object):
 
     def __init__(self, arg, mdp, reward, reset, deadend_penalty):
         self.MDP = mdp
@@ -58,14 +60,12 @@ class Maze:
     def get_legal_states(self):
         return [state for state in self.maze.keys() if self.maze[state] != '%']
 
-
     def get_legal_actions(self, position, orientation):
         """
         returns list of possible actions (forward, backwards, left, right)
         """
         actions = self.get_legal_dirs(position)
-        return util.directionToActionLst(orientation, actions)
-
+        return utilities.directionToActionLst(orientation, actions)
 
     def get_legal_dirs(self, position):
         """
@@ -120,12 +120,10 @@ class Maze:
         """ Bonus for visiting not recently visited states """
         return self.exploreVal[position]
 
-
     def is_terminal(self, position):
         if position in self.terminal:
             return True
         return False
-
 
     def take_action(self, position, action):
         """

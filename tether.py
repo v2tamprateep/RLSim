@@ -1,46 +1,9 @@
 import sys
 import argparse
-import Maze
-import Agents
-import MDP
-import util
 import os.path
 import collections
-
-
-def build_agent(agent, alpha, gamma, epsilon, learning, action_cost, maze=None):
-    if agent.lower() == 'qlearning':
-        return Agents.EpsilonSoftQLearningAgent(maze, alpha, gamma, epsilon, action_cost, learning)
-    elif 'sarsa' in agent.lower():
-        return Agents.EpsilonSoftSarsaAgent(maze, alpha, gamma, epsilon, action_cost, learning)
-    else:
-        util.cmdline_error(2)
-
-
-def build_maze(maze, MDP, reward, reset, deadend):
-    if not os.path.exists("./Layouts/" + maze + ".lay"):
-        print("./Layouts/" + maze + ".lay")
-        util.cmdline_error(0)
-    else:
-        return Maze.Maze(maze, MDP, reward, reset, deadend)
-
-
-def build_MDP(mdpIn):
-    if not os.path.exists("./TransFuncs/" + mdpIn + ".mdp"):
-        util.cmdline_error(1)
-    else:
-        return MDP.MDP(mdpIn)
-
-
-def play_maze(agent):
-    path = []
-    agent.reset_agent_state()
-    while not agent.finished_maze():
-        pos = agent.position
-        action = agent.get_action()
-        agent.take_action(action)
-        path.append((pos[0], pos[1], action))
-    return path
+import ScriptUtil as su
+import pandas as pd
 
 
 def main(argv):
@@ -55,7 +18,7 @@ def main(argv):
     parser.add_argument("-R", "--reward", help="value of reward", default=10, type=float)
     parser.add_argument("-r", "--reset", help="probability of resetting reward", default=0, type=float)
     parser.add_argument("-d", "--deadend_cost", help="penalty at a deadend", default=0, type=float)
-    parser.add_argument("-q", "--Qreset", help="interval in which qvalues or reset", default="", type=str)
+    parser.add_argument("--actions", help="file of input actions", required=True, type=str)
     parser.add_argument("-o", "--output", help="path to output file with extension", default=None)
     args = parser.parse_args(argv)
 
@@ -64,32 +27,21 @@ def main(argv):
     Agent = build_agent(args.algo, args.alpha, args.gamma, args.epsilon, args.learning,\
                         action_cost={'N':1, 'E':1, 'S':args.back_cost, 'W':1})
 
-    # Determine reset points (episodes where the Q-values are reset)
-    reset_pts = []
-    if args.Qreset == 'tri': reset_pts = tri
-    elif args.Qreset == 'trap': reset_pts = trap
-    elif args.Qreset.isdigit(): reset_pts = range(0, args.trials - 1, int(args.Qreset))
+    input_file = pd.read_csv(args.actions)
+    paths = input_file["path"]
+    probabilities = list()
 
-    # Run agent through maze for s samples of n trials
-    current_trial = 0
-    for s in range(args.samples):
-        paths = []
+    # loop through episodes/paths
+    for path in paths:
+        probabilities.append(su.tether(path, Agent))
 
-        for maze, trials in zip(args.mazes, args.trials):
-            Maze = build_maze(maze, MDP, args.reward, args.reset, args.deadend_cost)
-            Agent.change_maze(Maze)
+    # write to .csv file
+    num_trials = len(probabilties)
+    data = {"trial": range(num_trials), "probability": probabilities}
+    df = pd.DataFrame(data)
+    df.set_index("trials", inplace=True)
+    df.to_csv(output)
 
-            for i in range(trials):
-                if i in reset_pts:
-                    Agent.reset_Qvalues()
-                paths.append(play_maze(Agent))
-                current_trial += 1
-
-        if args.output is not None:
-            util.path_csv(s, args.trials, paths, args.output)
-
-        # reset learning for each sample
-        Agent.reset_Qvalues()
 
 if __name__ == "__main__":
     main(sys.argv[1:])
