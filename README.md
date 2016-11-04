@@ -34,8 +34,7 @@ Supported Algorithms:
 
 Simulator Parameters/Flags:
   --algo,             specify name of RL algorithm
-  --mazes,            list of mazes for agent to act in
-  -t, --trials,       list of trials lengths (for each maze)
+  --mazes,            maze config file
   -s, --samples,      number of samples
   --mdp,              name of .mdp file
   -a, --alpha,        learning rate
@@ -48,3 +47,13 @@ Simulator Parameters/Flags:
   -q, --Qreset,       interval at which qvalues are reset
   -o, --output,       output file
 
+Maze Config:
+  - This file allows for the maze swapping feature. The contents of this file
+    is a sequence of maze-trial pairs with one pair per line. For example:
+      
+      maze1: 5
+      maze2: 5
+      maze3: 5
+
+    The ": " is required to separate the maze and the number of trials the agent
+    will learn that maze.

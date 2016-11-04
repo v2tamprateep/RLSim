@@ -23,12 +23,11 @@ def main(argv):
     parser.add_argument("-o", "--output", help="path to output file with extension", default=None)
     args = parser.parse_args(argv)
 
+    # get mazes and episodes
+    mazes, episodes = su.read_config(args.mazes)
 
-    # get mazes and trials
-    mazes, trials = su.read_config(args.mazes)
-
-    # total trials
-    total_trials = sum(trials)
+    # total episodes
+    total_episodes = sum(episodes)
 
     # Build MDP, Agent objects
     MDP = su.build_MDP(args.mdp)
@@ -42,14 +41,14 @@ def main(argv):
     elif args.Qreset == 'trap':
         reset_pts = su.trap
     elif args.Qreset.isdigit():
-        reset_pts = range(0, total_trials - 1, int(args.Qreset))
+        reset_pts = range(0, total_episodes - 1, int(args.Qreset))
 
 
-    # Run agent through maze for s samples of n trials
+    # Run agent through maze for s samples of n episodes
     for s in range(args.samples):
         paths = []
 
-        for maze, trial in zip(mazes, trials):
+        for maze, trial in zip(mazes, episodes):
             Maze = su.build_maze(maze, MDP, args.reward, args.reset, args.deadend_cost)
             Agent.change_maze(Maze)
 
@@ -59,7 +58,7 @@ def main(argv):
                 paths.append(su.play_maze(Agent))
 
         if args.output is not None:
-            su.path_csv(s, total_trials, paths, args.output)
+            su.path_csv(s, total_episodes, paths, args.output)
 
         # reset learning for each sample
         Agent.reset_Qvalues()
