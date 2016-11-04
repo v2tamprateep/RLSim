@@ -18,17 +18,17 @@ def main(argv):
     parser.add_argument("-R", "--reward", help="value of reward", default=10, type=float)
     parser.add_argument("-r", "--reset", help="probability of resetting reward", default=0, type=float)
     parser.add_argument("-d", "--deadend_cost", help="penalty at a deadend", default=0, type=float)
-    parser.add_argument("--actions", help="file of input actions", required=True, type=str)
+    parser.add_argument("--input", help="file of input actions", required=True, type=str)
     parser.add_argument("-o", "--output", help="path to output file with extension", default=None)
     args = parser.parse_args(argv)
 
     # Build MDP, Agent objects
-    MDP = build_MDP(args.mdp)
-    Agent = build_agent(args.algo, args.alpha, args.gamma, args.epsilon, args.learning,\
+    MDP = su.build_MDP(args.mdp)
+    Agent = su.build_agent(args.algo, args.alpha, args.gamma, args.epsilon, args.learning,\
                         action_cost={'N':1, 'E':1, 'S':args.back_cost, 'W':1})
 
-    input_file = pd.read_csv(args.actions)
-    paths = input_file["path"]
+    input_file = pd.read_csv(args.input)
+    paths = input_file["paths"]
     probabilities = list()
 
     # loop through episodes/paths
@@ -36,11 +36,12 @@ def main(argv):
         probabilities.append(su.tether(path, Agent))
 
     # write to .csv file
-    num_trials = len(probabilties)
-    data = {"trial": range(num_trials), "probability": probabilities}
-    df = pd.DataFrame(data)
-    df.set_index("trials", inplace=True)
-    df.to_csv(output)
+    if args.output is not None:
+        num_trials = len(probabilties)
+        data = {"trial": range(num_trials), "probability": probabilities}
+        df = pd.DataFrame(data)
+        df.set_index("trials", inplace=True)
+        df.to_csv(output)
 
 
 if __name__ == "__main__":

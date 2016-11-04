@@ -21,7 +21,7 @@ trap = [0, 7, 28, 39, 49, 57, 64, 71, 74, 78, 82, 91, 97, 103, 106]
 """
 Object Creation
 """
-def build_agent(agent, alpha, gamma, epsilon, learning, action_cost, maze=None): 
+def build_agent(agent, alpha, gamma, epsilon, learning, action_cost, maze=None):
     """
     return agent object
     """
@@ -31,7 +31,7 @@ def build_agent(agent, alpha, gamma, epsilon, learning, action_cost, maze=None):
         if "qlearning" in agent:
             return Agents.GreedyQLAgent(maze, alpha, gamma, epsilon, action_cost, learning)
         else:
-            return Agents.GreedySarsaAgent(maze, alpha, gamma, epsilon, action_cost, learning)    
+            return Agents.GreedySarsaAgent(maze, alpha, gamma, epsilon, action_cost, learning)
     elif "soft" in agent:
         if "qlearning" in agent:
             return Agents.SoftQLAgent(maze, alpha, gamma, epsilon, action_cost, learning)
@@ -91,7 +91,7 @@ def tether(actions, follower):
     probabilities = list()
 
     follower.position = state_actions[0][0]
-    for i in len(state_actions):
+    for i in range(len(state_actions)):
         state, action = state_actions[i]
         follower.take_action(action)
 
@@ -120,11 +120,29 @@ def string_to_list(s):
     state_action_lst = []
     lst = s.split()
     i = 0
-    while 3*index < len(element_lst):
+    while 3*i < len(lst):
         state = (int(lst[i]), int(lst[i + 1]))
         action = lst[i + 2]
         state_action_lst.append((state, action))
         i += 3
+
+    return state_action_lst
+
+
+"""
+Input
+"""
+def read_config(config):
+    f = open(config)
+    mazes, trials = list(), list()
+
+    for line in f:
+        # formatted "maze: trials"
+        content = line.split(": ")
+        mazes.append(content[0])
+        trials.append(int(content[1]))
+
+    return mazes, trials
 
 
 """
