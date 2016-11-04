@@ -39,9 +39,9 @@ def main(argv):
         if maze != current_maze:
             new_maze = su.build_maze(maze, MDP, args.reward, args.reset, args.deadend_cost)
             Agent.change_maze(new_maze)
-            
-        probabilities.append(su.tether(path, Agent))
 
+        probabilities.append(su.tether(path, Agent))
+    print(probabilities)
     # write to .csv file
     if args.output is not None:
         num_trials = len(probabilties)

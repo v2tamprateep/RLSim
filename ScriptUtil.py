@@ -89,9 +89,8 @@ def tether(actions, follower):
     """
     # print(actions)
     state_actions = string_to_list(actions)
-    print(state_actions)
     probabilities = list()
-
+    
     for state, action in state_actions:
         probabilities.append(follower.get_probability(action))
         follower.take_action(action)

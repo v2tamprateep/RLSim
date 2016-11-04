@@ -63,9 +63,6 @@ def main(argv):
         # reset learning for each sample
         Agent.reset_Qvalues()
 
-    for path in paths:
-        print(path)
-
 
 if __name__ == "__main__":
     main(sys.argv[1:])
