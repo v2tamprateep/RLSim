@@ -44,11 +44,11 @@ def main(argv):
 
     # write to .csv file
     if args.output is not None:
-        num_trials = len(probabilties)
-        data = {"trial": range(num_trials), "probability": probabilities}
+        num_trials = len(probabilities)
+        data = {"trials": range(num_trials), "probability": probabilities}
         df = pd.DataFrame(data)
         df.set_index("trials", inplace=True)
-        df.to_csv(output)
+        df.to_csv(args.output)
 
 
 if __name__ == "__main__":
