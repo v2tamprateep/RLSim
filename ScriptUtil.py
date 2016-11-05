@@ -4,7 +4,7 @@ import MDP
 import string
 import datetime, time
 import pandas as pd
-import sys, os
+import sys, os, re
 
 
 """
@@ -38,7 +38,7 @@ def build_agent(agent, alpha, gamma, epsilon, learning, action_cost, maze=None):
         else:
             return Agents.SoftSarsaAgent(maze, alpha, gamma, epsilon, action_cost, learning)
     else:
-        print("Unsupported Agent")
+        print("Invalid Agent")
         sys.exit()
 
 
@@ -46,22 +46,35 @@ def build_maze(maze, MDP, reward, reset, deadend):
     """
     return maze object
     """
-    if not os.path.exists("./Layouts/" + maze + ".lay"):
-        print("Unsupported Maze")
+    maze_path = None
+    for root, dirs, files in os.walk(os.getcwd()):
+        for name in files:
+            if name.endswith(maze + ".lay"):
+                maze_path = os.path.join(root, name)
+    if maze_path is None:
+        print("Invalid maze config")
         sys.exit()
     else:
-        return Maze.Maze(maze, MDP, reward, reset, deadend)
+        return Maze.Maze(maze_path, MDP, reward, reset, deadend)
 
 
 def build_MDP(mdpIn):
     """
     return MDP object
     """
-    if not os.path.exists("./TransFuncs/" + mdpIn + ".mdp"):
-        print("Unsupported MDP")
+    mdp_path = None
+    # get default MDP file
+    for root, dirs, files in os.walk(os.getcwd()):
+        for name in files:
+            if name.endswith(mdpIn):
+                mdp_path = os.path.join(root, name)
+    
+    if mdp_path is None:
+    # if not os.path.exists("./TransFuncs/" + mdpIn + ".mdp"):
+        print("Invalid MDP")
         sys.exit()
     else:
-        return MDP.MDP(mdpIn)
+        return MDP.MDP(mdp_path)
 
 
 """
@@ -87,7 +100,6 @@ def tether(actions, follower):
     simulate one episode through the maze, taking the actions given
     actions: list of actions in one episode
     """
-    # print(actions)
     state_actions = string_to_list(actions)
     probabilities = list()
     

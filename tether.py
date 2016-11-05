@@ -9,8 +9,8 @@ import pandas as pd
 def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("--algo", help="name of reinforcement algorithm", required=True)
-    # parser.add_argument("--mazes", help="maze config file", required=True)
-    parser.add_argument("--mdp", help="transition file without extension", default="deterministic", type=str)
+    parser.add_argument("--mazes", help="maze config file", required=True)
+    parser.add_argument("--mdp", help="transition file", default="deterministic.mdp", type=str)
     parser.add_argument("-a", "--alpha", help="value of learning rate",default=0.5, type=float)
     parser.add_argument("-g", "--gamma", help="value of discount", default=0.8, type=float)
     parser.add_argument("-e", "--epsilon", help="probability of random action", default=0, type=float)
@@ -41,7 +41,7 @@ def main(argv):
             Agent.change_maze(new_maze)
 
         probabilities.append(su.tether(path, Agent))
-    print(probabilities)
+
     # write to .csv file
     if args.output is not None:
         num_trials = len(probabilties)

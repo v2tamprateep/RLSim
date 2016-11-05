@@ -20,8 +20,7 @@ class MDP:
         """
         action = ["N", "E", "W", "S", "NE", "NW", "SE", "SW"]
         MDP = {}
-
-        infile = open("./TransFuncs/" + arg + ".mdp", "r")
+        infile = open(arg, "r")
         lst = infile.read().splitlines()
 
         for line in lst:

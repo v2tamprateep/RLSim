@@ -8,6 +8,7 @@ Maze Object; used as Agent's environment
 class Maze(object):
 
     def __init__(self, arg, mdp, reward, reset, deadend_penalty):
+        self.name = arg.split('/')[-1][:-4]
         self.MDP = mdp
         self.reset, self.discount = reset, 1
         self.maze, self.start, self.terminal, self.cues = self.load_maze(arg, reward, deadend_penalty)
@@ -19,7 +20,7 @@ class Maze(object):
         """
         Read in .lay(out) file and save in dictionary
         """
-        infile = open("./Layouts/" + arg + ".lay", "r")
+        infile = open(arg)
         lst = infile.read().splitlines()
 
         start = 0
