@@ -127,7 +127,7 @@ class SarsaAgent(RLAgent):
     def update_agent_state(self, next_state, action):
         self.prev_state = self.position
         self.prev_action = action
-        super(SarsaAgent, self).update_agent_state()
+        super(SarsaAgent, self).update_agent_state(next_state, action)
 
     def take_action(self, action):
         new_state, taken_action = self.Maze.take_action(self.position, action)
@@ -148,10 +148,8 @@ class SarsaAgent(RLAgent):
         Update Qvalues based on learning_mode
         """
         currVal = self.qValues[(s1, a1)]
-
-        if (a2 == "exit"):
-            nextVal = 0
-        else:
+        nextVal = 0
+        if (a2 != "exit"):
             nextVal = self.qValues[(s2, a2)]
 
         if self.learning_mode == 1:
@@ -165,7 +163,7 @@ class SarsaAgent(RLAgent):
             reward = self.Maze.get_discount_value(s2) + self.get_action_cost(self.prev_action) + \
                     self.Maze.get_exploration_bonus(s2)
 
-        self.qValues[(s1, d1)] = currVal + self.alpha*(reward + nextVal - currVal)
+        self.qValues[(s1, a1)] = currVal + self.alpha*(reward + nextVal - currVal)
 
 
 """
@@ -250,6 +248,6 @@ class GreedySarsaAgent(SarsaAgent, EpsilonGreedyAgent):
 """
 Epsilon Soft SARSA
 """
-class EpsilonSoftSarsaAgent(SarsaAgent, EpsilonSoftAgent):
+class SoftSarsaAgent(SarsaAgent, EpsilonSoftAgent):
 
     pass
