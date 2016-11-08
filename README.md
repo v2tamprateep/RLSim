@@ -46,5 +46,7 @@ Agent orientation
 To run an agent through a maze, returning the paths taken per episode:
  `python learn.py --algo softqlearning --mazes <maze_file> --output <file_path>`
  
- To train an agent using animal behavioral data: 
+To train an agent using animal behavioral data: 
  `python tether.py --algo softsarsa --mazes RLSim/config/150 --input <file>  --output <file_path>`
+
+Examples of maze layout, MDP, and maze config files can be found in their respective folders. 
