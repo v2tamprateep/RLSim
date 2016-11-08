@@ -1,14 +1,12 @@
-Project: RLSim
-Author:  Virin Tamprateep
-###############
+## Synopsis
 
-Overview:
-RLSim is a reinforcement learning simulator, created specifically for comparing
-agent behaviors to animal behaviors. For this reason, the simulator features a
-variety of parameters.
+RLSim is a reinforcement learning simulator, created specifically for comparing agent behaviors to animal behaviors. The simulator employ RL agents in maze environments. Or, given animal behavior data as input, the simulator will train the agent according to given data.
 
+## Motivation
 
-Features:
+This project was developed to compare the behavior of learning agents in a maze environment to that of animals, using data from neuroscience research. The simulator attempts to recreate the situation of the animal for the learning agent. For example, neurological equipment can cause certain movements to become more difficult. 
+
+## Features
 Automated Q-value resets on indicated episodes
   - episodes can be manually specified
   - Q-values can be reset every n episodes where n is a parameter.
@@ -26,34 +24,19 @@ Agent orientation
     the option of penalizing backward movement more than forward movement (for 
     simulating difficulty in different movements).
 
-
-Supported Algorithms:
-  - Qlearning (epsilon-greedy action selection)
-  - SARSA     (epsilon-greedy action selection)
-
-
-Simulator Parameters/Flags:
-  --algo,             specify name of RL algorithm
-  --mazes,            maze config file
-  -s, --samples,      number of samples
-  --mdp,              name of .mdp file
-  -a, --alpha,        learning rate
-  -g, --gamma,        discount value
-  -e, --epsilon,      epsilon-greedy parameter
-  -l, --learning,     agent's update function
-  -b, --back_cost,    penalization for backward movement
-  -R, --reward,       reward for finishing maze
-  -d, --deadend_cost, penalty for reaching a deadend
-  -q, --Qreset,       interval at which qvalues are reset
-  -o, --output,       output file
-
-Maze Config:
-  - This file allows for the maze swapping feature. The contents of this file
-    is a sequence of maze-trial pairs with one pair per line. For example:
-      
-      maze1: 5
-      maze2: 5
-      maze3: 5
-
-    The ": " is required to separate the maze and the number of trials the agent
-    will learn that maze.
+## Parameters
+|Flag          |Description
+|--------------|----------------------------------------|
+| --algo       |specify name of RL algorithm
+|  --mazes     |maze config file
+|-s, --samples |number of samples
+|--mdp         |name of .mdp file
+|-a, --alpha|        learning rate
+|-g, --gamma|        discount value
+|-e, --epsilon|      epsilon-greedy parameter
+|-l, --learning|     agent's update function
+|-b, --back_cost|    penalization for backward movement
+|-R, --reward|       reward for finishing maze
+|-d, --deadend_cost| penalty for reaching a deadend
+|-q, --Qreset|       interval at which qvalues are reset
+|-o, --output|       output file
