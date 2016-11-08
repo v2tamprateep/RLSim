@@ -4,6 +4,18 @@ RLSim is a reinforcement learning simulator, created specifically for comparing 
 ## Motivation
 This project was developed to compare the behavior of learning agents in a maze environment to that of animals, using data from neuroscience research. The simulator attempts to recreate the situation of the animal for the learning agent. For example, neurological equipment can cause certain movements to become more difficult. 
 
+## Installation
+`git clone git@github.com:v2tamprateep/RLSim.git`
+
+## Usage Example
+To run an agent through a maze, returning the paths taken per episode:
+ `python learn.py --algo <agent> --mazes <maze_file> --output <file_path>`
+ 
+To train an agent using animal behavioral data: 
+ `python tether.py --algo <agent> --mazes <config_file> --input <file>  --output <file_path>`
+
+Examples of maze layout, MDP, and maze config files can be found in their respective folders.
+
 ## Features
 Automated Q-value resets on indicated episodes
   - episodes can be manually specified
@@ -39,14 +51,3 @@ Agent orientation
 |-q, --Qreset|       interval at which qvalues are reset (learn.py only)
 |-o, --output|       output file
 
-## Installation
-`git clone git@github.com:v2tamprateep/RLSim.git`
-
-## Usage Example
-To run an agent through a maze, returning the paths taken per episode:
- `python learn.py --algo softqlearning --mazes <maze_file> --output <file_path>`
- 
-To train an agent using animal behavioral data: 
- `python tether.py --algo softsarsa --mazes RLSim/config/150 --input <file>  --output <file_path>`
-
-Examples of maze layout, MDP, and maze config files can be found in their respective folders. 
