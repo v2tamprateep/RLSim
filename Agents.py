@@ -210,7 +210,7 @@ class EpsilonSoftAgent(RLAgent):
     def get_probability(self, action):
         legal_actions = self.Maze.get_legal_dirs(self.position)
         boltz_values = self.softmax([self.qValues[(self.position, a)] for a in legal_actions])
-        return boltz_values[legal_actions.index(action)] + self.epsilon/len(legal_actions)
+        return (1 - self.epsilon) * boltz_values[legal_actions.index(action)] + (self.epsilon) * (1.0 / len(legal_actions))
 
     def get_action(self):
         legal_actions = self.Maze.get_legal_dirs(self.position)
