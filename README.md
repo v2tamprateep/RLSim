@@ -1,5 +1,5 @@
 ## Synopsis
-RLSim is a reinforcement learning simulator, created specifically for comparing agent behaviors to animal behaviors. The simulator employ RL agents in maze environments. Or, given animal behavior data as input, the simulator will train the agent according to given data.
+RLSim is a reinforcement learning simulator, created specifically for comparing agent behaviors to animal behaviors. The simulator runs RL agents through maze environments. Given animal behavior data as input, the simulator will train the agent according to given data.
 
 ## Motivation
 This project was developed to compare the behavior of learning agents in a maze environment to that of animals, using data from neuroscience research. The simulator attempts to recreate the situation of the animal for the learning agent. For example, neurological equipment can cause certain movements to become more difficult. 
